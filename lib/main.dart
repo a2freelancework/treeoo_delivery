@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:treeo_delivery/screens/loginsection.dart';
+import 'package:treeo_delivery/widget/reusable_colors.dart';
 
 void main() {
   runApp(const MyApp());
@@ -7,10 +9,10 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
@@ -33,6 +35,9 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold();
+    return const Scaffold(
+      backgroundColor: whiteColor,
+      body: LoginSection(),
+    );
   }
 }
