@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "879737452073",
+    "project_id": "treoo-database",
+    "storage_bucket": "treoo-database.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:879737452073:android:7709f55b47094fd889ce38",
+        "android_client_info": {
+          "package_name": "com.example.treeo_delivery"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDLh0yIBdk6XnVHYWybRDPmUvXCGQq98Ug"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:879737452073:android:b78203a768de894c89ce38",
+        "android_client_info": {
+          "package_name": "com.treeoo.treeoo"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDLh0yIBdk6XnVHYWybRDPmUvXCGQq98Ug"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

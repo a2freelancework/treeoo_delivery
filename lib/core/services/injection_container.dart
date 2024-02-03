@@ -1,0 +1,30 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:get_it/get_it.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:treeo_delivery/core/services/user_auth_service.dart';
+import 'package:treeo_delivery/data/auth/data_source/auth_data_src.dart';
+import 'package:treeo_delivery/data/auth/data_source/email_password_src.dart';
+import 'package:treeo_delivery/data/auth/repository/auth_repo_impl.dart';
+import 'package:treeo_delivery/data/orders/data_source/scrap_order_local_data_src.dart';
+import 'package:treeo_delivery/data/orders/data_source/scrap_orders_remote_src.dart';
+import 'package:treeo_delivery/data/orders/repository/scrap_order_repo_impl.dart';
+import 'package:treeo_delivery/domain/auth/repository/auth_repo.dart';
+import 'package:treeo_delivery/domain/auth/usecases/forgot_password_usecase.dart';
+import 'package:treeo_delivery/domain/auth/usecases/get_pickup_user_from_cache.dart';
+import 'package:treeo_delivery/domain/auth/usecases/get_vehicles.dart';
+import 'package:treeo_delivery/domain/auth/usecases/save_selected_vehicle.dart';
+import 'package:treeo_delivery/domain/auth/usecases/sign_in_usecase.dart';
+import 'package:treeo_delivery/domain/auth/usecases/sign_out_usecase.dart';
+import 'package:treeo_delivery/domain/auth/usecases/signout_user_usecase.dart';
+import 'package:treeo_delivery/domain/auth/usecases/user_register_usecase.dart';
+import 'package:treeo_delivery/domain/orders/repository/scrap_order_repo.dart';
+import 'package:treeo_delivery/domain/orders/usecase/complete_order.dart';
+import 'package:treeo_delivery/domain/orders/usecase/get_invoiced_scrap_data.dart';
+import 'package:treeo_delivery/domain/orders/usecase/get_my_collection.dart';
+import 'package:treeo_delivery/presentation/authentication/auth_bloc/auth_bloc.dart';
+import 'package:treeo_delivery/presentation/screens/orderscreen/pending_assigned_order_cubit/pending_assigned_order_cubit.dart';
+import 'package:treeo_delivery/presentation/screens/scrapcollection/scrap_collection_cubit/scrap_collection_cubit.dart';
+
+
+part 'injection_container_main.dart';
