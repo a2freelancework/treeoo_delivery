@@ -7,15 +7,15 @@ import 'package:treeo_delivery/domain/orders/entity/my_collection.dart';
 import 'package:treeo_delivery/presentation/widget/appbarsection.dart';
 import 'package:treeo_delivery/presentation/widget/reusable_colors.dart';
 
-class CollectionDetails extends StatefulWidget {
-  const CollectionDetails({required this.collection, super.key});
+class CollectionDetailsScreen extends StatefulWidget {
+  const CollectionDetailsScreen({required this.collection, super.key});
   final MyCollection collection;
 
   @override
-  State<CollectionDetails> createState() => _CollectionDetailsState();
+  State<CollectionDetailsScreen> createState() => _CollectionDetailsScreenState();
 }
 
-class _CollectionDetailsState extends State<CollectionDetails> {
+class _CollectionDetailsScreenState extends State<CollectionDetailsScreen> {
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;

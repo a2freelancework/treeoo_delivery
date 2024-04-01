@@ -9,20 +9,21 @@ import 'package:treeo_delivery/data/orders/model/scrap_model.dart';
 import 'package:treeo_delivery/data/orders/model/scrap_order_model.dart';
 import 'package:treeo_delivery/domain/orders/entity/scrap_order_entity.dart';
 import 'package:treeo_delivery/domain/orders/usecase/complete_order.dart';
-import 'package:treeo_delivery/presentation/screens/billsection/scraps_cubit/scrap_cubit.dart';
+import 'package:treeo_delivery/presentation/screens/1_scrap_orders/scraps_cubit/scrap_cubit.dart';
+import 'package:treeo_delivery/presentation/screens/1_scrap_orders/widgets/auto_search.dart';
 import 'package:treeo_delivery/presentation/screens/deliverydashboard.dart';
 import 'package:treeo_delivery/presentation/widget/appbarsection.dart';
 import 'package:treeo_delivery/presentation/widget/reusable_colors.dart';
 
-class BillViewScreen extends StatefulWidget {
-  const BillViewScreen({required this.order, super.key});
+class ConfirmOrderScreen extends StatefulWidget {
+  const ConfirmOrderScreen({required this.order, super.key});
   final ScrapOrder order;
 
   @override
-  State<BillViewScreen> createState() => _BillViewScreenState();
+  State<ConfirmOrderScreen> createState() => _ConfirmOrderScreenState();
 }
 
-class _BillViewScreenState extends State<BillViewScreen> {
+class _ConfirmOrderScreenState extends State<ConfirmOrderScreen> {
   late ScrapOrderModel order;
   var _total = 0.0;
   var _amountPayable = 0.0;
@@ -54,6 +55,7 @@ class _BillViewScreenState extends State<BillViewScreen> {
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
     final height = MediaQuery.of(context).size.height;
+    // ignore: deprecated_member_use
     return WillPopScope(
       onWillPop: () async {
         return await showPopup() ?? false;
@@ -69,7 +71,7 @@ class _BillViewScreenState extends State<BillViewScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   AppbarSection(
-                    heading: ' Order Details',
+                    heading: ' Confirm Order',
                     onBackTap: () {
                       showPopup().then((canGoback) {
                         if (canGoback ?? false) {
@@ -788,62 +790,5 @@ class _BillViewScreenState extends State<BillViewScreen> {
     _serviceCharge.dispose();
     _roundOff.dispose();
     super.dispose();
-  }
-}
-
-class AutoSearch extends StatelessWidget {
-  const AutoSearch({
-    required this.options,
-    required this.onSelected,
-    super.key,
-  });
-  final List<ScrapModel> options;
-  final void Function(ScrapModel) onSelected;
-  @override
-  Widget build(BuildContext context) {
-    return Autocomplete<ScrapModel>(
-      optionsBuilder: (TextEditingValue textEditingValue) {
-        if (textEditingValue.text == '') {
-          return const Iterable<ScrapModel>.empty();
-        }
-        return options.where(
-          (scrap) => scrap.scrapName
-              .toLowerCase()
-              .contains(textEditingValue.text.toLowerCase()),
-        );
-      },
-      displayStringForOption: (sp) {
-        return sp.scrapName;
-      },
-      optionsViewBuilder: (_, callback, options) {
-        return Material(
-          child: SizedBox(
-            height: 200,
-            child: SingleChildScrollView(
-              child: Column(
-                children: options.map((opt) {
-                  return GestureDetector(
-                    onTap: () {
-                      onSelected(opt);
-                      callback(opt);
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.only(right: 40),
-                      child: Card(
-                        child: Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.all(10),
-                          child: Text(opt.scrapName),
-                        ),
-                      ),
-                    ),
-                  );
-                }).toList(),
-              ),
-            ),
-          ),
-        );
-      },
-    );
   }
 }

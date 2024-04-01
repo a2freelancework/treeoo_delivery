@@ -4,7 +4,7 @@ import 'package:get_it/get_it.dart';
 import 'package:treeo_delivery/core/utils/type_def.dart';
 import 'package:treeo_delivery/domain/orders/entity/scrap_order_entity.dart';
 import 'package:treeo_delivery/domain/orders/repository/scrap_order_repo.dart';
-import 'package:treeo_delivery/presentation/screens/orderscreen/orderdetails.dart';
+import 'package:treeo_delivery/presentation/screens/1_scrap_orders/orderdetails.dart';
 
 class OrderUsecases {
   OrderUsecases._();

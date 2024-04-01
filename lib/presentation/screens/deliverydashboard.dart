@@ -10,13 +10,13 @@ import 'package:treeo_delivery/core/services/user_auth_service.dart';
 import 'package:treeo_delivery/domain/auth/entity/pickup_user.dart';
 import 'package:treeo_delivery/main.dart';
 import 'package:treeo_delivery/presentation/authentication/auth_bloc/auth_bloc.dart';
+import 'package:treeo_delivery/presentation/screens/1_scrap_orders/pending_assigned_order_cubit/pending_assigned_order_cubit.dart';
 import 'package:treeo_delivery/presentation/screens/1_scrap_orders/pending_orders.dart';
-import 'package:treeo_delivery/presentation/screens/orderscreen/add_new_order_cubit/add_new_order_cubit.dart';
-import 'package:treeo_delivery/presentation/screens/orderscreen/addorders.dart';
-import 'package:treeo_delivery/presentation/screens/orderscreen/pending_assigned_order_cubit/pending_assigned_order_cubit.dart';
-import 'package:treeo_delivery/presentation/screens/orderscreen/scraphistory.dart';
-import 'package:treeo_delivery/presentation/screens/scrapcollection/scrap_collection_cubit/scrap_collection_cubit.dart';
-import 'package:treeo_delivery/presentation/screens/scrapcollection/scrapdetail.dart';
+import 'package:treeo_delivery/presentation/screens/2_add_orders/add_new_order_cubit/add_new_order_cubit.dart';
+import 'package:treeo_delivery/presentation/screens/2_add_orders/add_orders_screen.dart';
+import 'package:treeo_delivery/presentation/screens/3_scrap_history/scrap_history_screen.dart';
+import 'package:treeo_delivery/presentation/screens/4_scrap_collection/scrap_collection_cubit/scrap_collection_cubit.dart';
+import 'package:treeo_delivery/presentation/screens/4_scrap_collection/scrap_collection_screen.dart';
 import 'package:treeo_delivery/presentation/widget/reusable_colors.dart';
 import 'package:treeo_delivery/presentation/widget/reusablewidgets.dart';
 
@@ -281,7 +281,7 @@ class _DeliveryDashboardState extends State<DeliveryDashboard> {
                                   create: (context) =>
                                       GetIt.I.get<PendingAssignedOrderCubit>()
                                         ..getAllPendingAssignedOrders(),
-                                  child: const ScrapOrderScreen(),
+                                  child: const PendingOrderScreen(),
                                 ),
                                 pageAnimationType: FadeAnimationTransition(),
                               ),
@@ -299,7 +299,7 @@ class _DeliveryDashboardState extends State<DeliveryDashboard> {
                               PageAnimationTransition(
                                 page: BlocProvider(
                                   create: (context) => AddNewOrderCubit(),
-                                  child: const AddOrders(),
+                                  child: const AddOrdersScreen(),
                                 ),
                                 pageAnimationType: FadeAnimationTransition(),
                               ),
@@ -315,7 +315,7 @@ class _DeliveryDashboardState extends State<DeliveryDashboard> {
                           onTap: () {
                             Navigator.of(context).push(
                               PageAnimationTransition(
-                                page: const ScrapHistory(),
+                                page: const ScrapHistoryScreen(),
                                 pageAnimationType: FadeAnimationTransition(),
                               ),
                             );
@@ -341,7 +341,7 @@ class _DeliveryDashboardState extends State<DeliveryDashboard> {
                                   create: (context) =>
                                       GetIt.I.get<ScrapCollectionCubit>()
                                         ..getMyCollection(),
-                                  child: const ScrapDetail(),
+                                  child: const ScrapCollectionScreen(),
                                 ),
                                 pageAnimationType: FadeAnimationTransition(),
                               ),

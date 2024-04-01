@@ -3,7 +3,7 @@ import 'package:treeo_delivery/core/errors/failures.dart';
 import 'package:treeo_delivery/core/utils/type_def.dart';
 import 'package:treeo_delivery/data/orders/model/invoiced_scrap.dart';
 import 'package:treeo_delivery/domain/orders/entity/scrap_order_entity.dart';
-import 'package:treeo_delivery/presentation/screens/orderscreen/orderdetails.dart';
+import 'package:treeo_delivery/presentation/screens/1_scrap_orders/orderdetails.dart';
 
 abstract class ScrapOrderRepo {
   const ScrapOrderRepo();

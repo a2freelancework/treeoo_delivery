@@ -23,8 +23,8 @@ import 'package:treeo_delivery/domain/orders/usecase/complete_order.dart';
 import 'package:treeo_delivery/domain/orders/usecase/get_invoiced_scrap_data.dart';
 import 'package:treeo_delivery/domain/orders/usecase/get_my_collection.dart';
 import 'package:treeo_delivery/presentation/authentication/auth_bloc/auth_bloc.dart';
-import 'package:treeo_delivery/presentation/screens/orderscreen/pending_assigned_order_cubit/pending_assigned_order_cubit.dart';
-import 'package:treeo_delivery/presentation/screens/scrapcollection/scrap_collection_cubit/scrap_collection_cubit.dart';
+import 'package:treeo_delivery/presentation/screens/1_scrap_orders/pending_assigned_order_cubit/pending_assigned_order_cubit.dart';
+import 'package:treeo_delivery/presentation/screens/4_scrap_collection/scrap_collection_cubit/scrap_collection_cubit.dart';
 
 
 part 'injection_container_main.dart';

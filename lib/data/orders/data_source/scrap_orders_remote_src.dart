@@ -12,7 +12,7 @@ import 'package:treeo_delivery/data/orders/model/invoiced_scrap.dart';
 import 'package:treeo_delivery/data/orders/model/scrap_model.dart';
 import 'package:treeo_delivery/data/orders/model/scrap_order_model.dart';
 import 'package:treeo_delivery/domain/orders/orders_const_info.dart';
-import 'package:treeo_delivery/presentation/screens/orderscreen/orderdetails.dart';
+import 'package:treeo_delivery/presentation/screens/1_scrap_orders/orderdetails.dart';
 
 abstract class OrderRemoteDataSrc {
   const OrderRemoteDataSrc();

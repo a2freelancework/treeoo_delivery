@@ -13,10 +13,11 @@ import 'package:treeo_delivery/data/orders/model/scrap_order_model.dart';
 import 'package:treeo_delivery/domain/orders/entity/scrap_order_entity.dart';
 import 'package:treeo_delivery/domain/orders/usecase/get_invoiced_scrap_data.dart';
 import 'package:treeo_delivery/domain/orders/usecase/order_usecases.dart';
+import 'package:treeo_delivery/presentation/screens/1_scrap_orders/confirm_order_screen.dart';
+import 'package:treeo_delivery/presentation/screens/1_scrap_orders/order_rejection_reason.dart';
 import 'package:treeo_delivery/presentation/screens/1_scrap_orders/pending_orders.dart';
-import 'package:treeo_delivery/presentation/screens/billsection/billview.dart';
-import 'package:treeo_delivery/presentation/screens/billsection/scraps_cubit/scrap_cubit.dart';
-import 'package:treeo_delivery/presentation/screens/orderscreen/order_rejection_reason.dart';
+import 'package:treeo_delivery/presentation/screens/1_scrap_orders/scraps_cubit/scrap_cubit.dart';
+import 'package:treeo_delivery/presentation/screens/1_scrap_orders/widgets/ordered_items.dart';
 import 'package:treeo_delivery/presentation/widget/appbarsection.dart';
 import 'package:treeo_delivery/presentation/widget/reusable_colors.dart';
 
@@ -215,31 +216,6 @@ class _OrderDetailsState extends State<OrderDetails> {
                         SizedBox(height: height * .01),
                         const Line(),
                         SizedBox(height: height * .01),
-                        // const Text(
-                        //   'Comments',
-                        //   style: TextStyle(
-                        //     fontWeight: FontWeight.w500,
-                        //     fontFamily: 'Gilroy',
-                        //     fontSize: 15,
-                        //     letterSpacing: .4,
-                        //     color: blackColor,
-                        //   ),
-                        // ),
-                        // SizedBox(
-                        //   height: height * .01,
-                        // ),
-                        // const Text(
-                        //   'Make A call before arrival',
-                        //   maxLines: 4,
-                        //   textAlign: TextAlign.justify,
-                        //   style: TextStyle(
-                        //     fontWeight: FontWeight.w500,
-                        //     fontFamily: 'Gilroy',
-                        //     fontSize: 15,
-                        //     letterSpacing: .4,
-                        //     color: otpgrey,
-                        //   ),
-                        // ),
                         SizedBox(height: height * .025),
                         const Text(
                           'Item List',
@@ -539,7 +515,7 @@ class _OrderDetailsState extends State<OrderDetails> {
       PageAnimationTransition(
         page: BlocProvider(
           create: (context) => ScrapCubit()..fetchScraps(),
-          child: BillViewScreen(order: order),
+          child: ConfirmOrderScreen(order: order),
         ),
         pageAnimationType: FadeAnimationTransition(),
       ),
@@ -606,7 +582,7 @@ class _OrderDetailsState extends State<OrderDetails> {
         (_) => Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute<void>(
-            builder: (context) => const ScrapOrderScreen(),
+            builder: (context) => const PendingOrderScreen(),
           ),
           (route) => false,
         ),

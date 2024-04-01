@@ -14,7 +14,7 @@ import 'package:treeo_delivery/data/orders/model/scrap_model.dart';
 import 'package:treeo_delivery/data/orders/model/scrap_order_model.dart';
 import 'package:treeo_delivery/domain/orders/entity/scrap_order_entity.dart';
 import 'package:treeo_delivery/domain/orders/repository/scrap_order_repo.dart';
-import 'package:treeo_delivery/presentation/screens/orderscreen/orderdetails.dart';
+import 'package:treeo_delivery/presentation/screens/1_scrap_orders/orderdetails.dart';
 
 class ScrapOrderRepoImpl implements ScrapOrderRepo {
   const ScrapOrderRepoImpl({

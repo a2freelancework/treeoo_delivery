@@ -7,7 +7,7 @@ import 'package:treeo_delivery/core/services/user_auth_service.dart';
 import 'package:treeo_delivery/core/utils/string_constants.dart';
 import 'package:treeo_delivery/data/orders/model/scrap_order_model.dart';
 import 'package:treeo_delivery/domain/orders/entity/scrap_order_entity.dart';
-import 'package:treeo_delivery/presentation/screens/orderscreen/pending_assigned_order_cubit/new_user_and_order_datasource.dart';
+import 'package:treeo_delivery/presentation/screens/1_scrap_orders/pending_assigned_order_cubit/new_user_and_order_datasource.dart';
 
 part 'add_new_order_state.dart';
 

@@ -6,16 +6,18 @@ import 'package:flutter/material.dart';
 import 'package:treeo_delivery/domain/orders/entity/scrap_order_entity.dart';
 import 'package:treeo_delivery/domain/orders/orders_const_info.dart';
 import 'package:treeo_delivery/domain/orders/usecase/order_usecases.dart';
+import 'package:treeo_delivery/presentation/screens/3_scrap_history/widgets/scrap_history_grid.dart';
 import 'package:treeo_delivery/presentation/widget/appbarsection.dart';
+import 'package:treeo_delivery/presentation/widget/search_box.dart';
 
-class ScrapHistory extends StatefulWidget {
-  const ScrapHistory({super.key});
+class ScrapHistoryScreen extends StatefulWidget {
+  const ScrapHistoryScreen({super.key});
 
   @override
-  State<ScrapHistory> createState() => _ScrapHistoryState();
+  State<ScrapHistoryScreen> createState() => _ScrapHistoryScreenState();
 }
 
-class _ScrapHistoryState extends State<ScrapHistory> {
+class _ScrapHistoryScreenState extends State<ScrapHistoryScreen> {
 
 
   late final StreamController<Iterable<ScrapOrder>> _orderStreamControl;
@@ -70,7 +72,7 @@ class _ScrapHistoryState extends State<ScrapHistory> {
               },
             ),
             SizedBox(height: height * .015),
-            RescheduledCustomerData(
+            ScrapHistoryGrid(
               controller: _orderStreamControl,
             ),
           ],

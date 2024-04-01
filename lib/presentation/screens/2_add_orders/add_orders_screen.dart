@@ -5,18 +5,18 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:treeo_delivery/core/extensions/date_ext.dart';
 import 'package:treeo_delivery/core/utils/snack_bar.dart';
 import 'package:treeo_delivery/domain/orders/entity/scrap_order_entity.dart';
-import 'package:treeo_delivery/presentation/screens/orderscreen/add_new_order_cubit/add_new_order_cubit.dart';
+import 'package:treeo_delivery/presentation/screens/2_add_orders/add_new_order_cubit/add_new_order_cubit.dart';
 import 'package:treeo_delivery/presentation/widget/appbarsection.dart';
 import 'package:treeo_delivery/presentation/widget/reusable_colors.dart';
 
-class AddOrders extends StatefulWidget {
-  const AddOrders({super.key});
+class AddOrdersScreen extends StatefulWidget {
+  const AddOrdersScreen({super.key});
 
   @override
-  State<AddOrders> createState() => _AddOrdersState();
+  State<AddOrdersScreen> createState() => _AddOrdersScreenState();
 }
 
-class _AddOrdersState extends State<AddOrders> {
+class _AddOrdersScreenState extends State<AddOrdersScreen> {
   late final TextEditingController _ph;
   late final TextEditingController _name;
   late final TextEditingController _date;
