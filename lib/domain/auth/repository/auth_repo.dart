@@ -1,5 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:treeo_delivery/core/errors/failures.dart';
+import 'package:treeo_delivery/core/services/user_location_helper.dart';
 import 'package:treeo_delivery/domain/auth/entity/pickup_user.dart';
 import 'package:treeo_delivery/domain/auth/entity/vehicle.dart';
 
@@ -28,5 +29,8 @@ abstract class AuthRepo {
   Future<Either<Failure, void>> signOut();
 
   Future<Either<Failure, Iterable<Vehicle>>> getVehicles();
-  Future<Either<Failure, void>> saveSelectedVehicle(Vehicle vehicle);
+  Future<Either<Failure, void>> cacheVehicleOrLocation({
+    Vehicle? vehicle,
+    UserLocation? location,
+  });
 }

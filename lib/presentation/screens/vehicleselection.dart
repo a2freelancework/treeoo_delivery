@@ -9,7 +9,7 @@ import 'package:treeo_delivery/core/utils/snack_bar.dart';
 import 'package:treeo_delivery/domain/auth/entity/vehicle.dart';
 import 'package:treeo_delivery/domain/auth/usecases/get_vehicles.dart';
 import 'package:treeo_delivery/domain/auth/usecases/save_selected_vehicle.dart';
-import 'package:treeo_delivery/presentation/screens/deliverydashboard.dart';
+import 'package:treeo_delivery/presentation/screens/select_location_screen.dart';
 import 'package:treeo_delivery/presentation/widget/reusable_colors.dart';
 import 'package:treeo_delivery/presentation/widget/reusablewidgets.dart';
 
@@ -26,7 +26,7 @@ class _VehicleSelectionState extends State<VehicleSelection> {
   bool _isSaving = false;
   List<Vehicle> _vehicles = [];
   final GetVehicles _getVehicles = GetIt.I.get<GetVehicles>();
-  late final SaveSelectedVehicles _saveSelectedVehicles = GetIt.I.get<SaveSelectedVehicles>();
+  late final CacheVehicleOrLocation _saveSelectedVehicles = GetIt.I.get<CacheVehicleOrLocation>();
 
   @override
   void initState() {
@@ -147,7 +147,7 @@ class _VehicleSelectionState extends State<VehicleSelection> {
                                       context,
                                       MaterialPageRoute<void>(
                                         builder: (context) =>
-                                            const DeliveryDashboard(),
+                                            const SelectLocation(),
                                       ),
                                     ),);
                           },
@@ -198,7 +198,9 @@ class _VehicleSelectionState extends State<VehicleSelection> {
     setState(() {
       _isSaving = true;
     });
-    await _saveSelectedVehicles(vehicle).then((value) {
+    await _saveSelectedVehicles(
+      vehicle: vehicle,
+    ).then((value) {
       value.fold(
         (failure) {
           AppSnackBar.showSnackBar(context, failure.errorMessage);

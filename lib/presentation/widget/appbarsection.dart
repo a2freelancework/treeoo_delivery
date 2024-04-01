@@ -3,17 +3,20 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:page_animation_transition/animations/fade_animation_transition.dart';
 import 'package:page_animation_transition/page_animation_transition.dart';
 import 'package:treeo_delivery/core/extensions/date_ext.dart';
 import 'package:treeo_delivery/core/services/user_auth_service.dart';
+import 'package:treeo_delivery/core/utils/snack_bar.dart';
 import 'package:treeo_delivery/data/orders/model/invoiced_scrap.dart';
 import 'package:treeo_delivery/domain/orders/entity/scrap_order_entity.dart';
 import 'package:treeo_delivery/presentation/screens/orderscreen/orderdetails.dart';
 import 'package:treeo_delivery/presentation/screens/scrapcollection/collectiondetails.dart';
 import 'package:treeo_delivery/presentation/screens/scrapcollection/scrap_collection_cubit/scrap_collection_cubit.dart';
+import 'package:treeo_delivery/presentation/widget/helper_class/url_launcher_helper.dart';
 import 'package:treeo_delivery/presentation/widget/reusable_colors.dart';
 
 class AppbarSectionwithoutback extends StatelessWidget {
@@ -42,8 +45,13 @@ class AppbarSectionwithoutback extends StatelessWidget {
 }
 
 class AppbarSection extends StatelessWidget {
-  const AppbarSection({required this.heading, super.key});
+  const AppbarSection({
+    required this.heading,
+    super.key,
+    this.onBackTap,
+  });
   final String heading;
+  final void Function()? onBackTap;
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
@@ -53,7 +61,9 @@ class AppbarSection extends StatelessWidget {
         SizedBox(
           width: width * .04,
         ),
-        const BackshadowContainer(),
+        BackshadowContainer(
+          onTap: onBackTap,
+        ),
         const Spacer(),
         Text(
           heading,
@@ -75,16 +85,21 @@ class AppbarSection extends StatelessWidget {
 }
 
 class BackshadowContainer extends StatelessWidget {
-  const BackshadowContainer({super.key});
+  const BackshadowContainer({
+    super.key,
+    this.onTap,
+  });
+  final void Function()? onTap;
 
   @override
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height;
     final width = MediaQuery.of(context).size.width;
     return GestureDetector(
-      onTap: () {
-        Navigator.pop(context);
-      },
+      onTap: onTap ??
+          () {
+            Navigator.pop(context);
+          },
       child: Container(
         width: width * .12,
         height: height * .06,
@@ -114,9 +129,13 @@ class BackshadowContainer extends StatelessWidget {
 }
 
 class OrderContainer extends StatelessWidget {
-  const OrderContainer({required this.name, required this.onTap, super.key});
+  const OrderContainer({
+    required this.name,
+    required this.onTap,
+    super.key,
+  });
   final String name;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
   @override
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height;
@@ -263,9 +282,31 @@ class _SearchBoxState extends State<SearchBox> {
   }
 }
 
+final phonInputFormat = [
+  FilteringTextInputFormatter.allow(RegExp(r'^\d{0,10}')),
+];
+
 class CustomTextfeild extends StatelessWidget {
-  const CustomTextfeild({required this.searchterm, super.key});
+  const CustomTextfeild({
+    required this.searchterm,
+    this.prefixText,
+    this.keyboardType,
+    this.inputFormatters,
+    this.controller,
+    this.validator,
+    this.readOnly = false,
+    this.suffixIcon,
+    super.key,
+  });
   final String searchterm;
+  final String? prefixText;
+  final TextInputType? keyboardType;
+  final List<TextInputFormatter>? inputFormatters;
+  final TextEditingController? controller;
+  final String? Function(String?)? validator;
+  final bool readOnly;
+  final Widget? suffixIcon;
+
   @override
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height;
@@ -284,15 +325,20 @@ class CustomTextfeild extends StatelessWidget {
           ),
         ],
       ),
-      child: TextField(
+      child: TextFormField(
         cursorColor: blackColor,
         onEditingComplete: () {},
-        // controller: _emailController,
-
+        controller: controller,
+        keyboardType: keyboardType,
+        inputFormatters: inputFormatters,
+        validator: validator,
+        readOnly: readOnly,
         decoration: InputDecoration(
+          suffixIcon: suffixIcon,
           fillColor: whiteColor,
           filled: true,
           hintText: searchterm,
+          prefixText: prefixText,
           contentPadding: const EdgeInsets.all(8),
           hintStyle: const TextStyle(fontSize: 12, color: Color(0xff6B6B6B)),
           focusedBorder: OutlineInputBorder(
@@ -586,7 +632,16 @@ class _CustomerdeatilListState extends State<CustomerdeatilList> {
                               ),
                               const Spacer(),
                               InkWell(
-                                onTap: () {},
+                                onTap: () {
+                                  try {
+                                    UrlLaunchingHelper.whatsapp(order.phone);
+                                  } on Exception catch (_) {
+                                    AppSnackBar.showSnackBar(
+                                      context,
+                                      'WhatsApp not installed.',
+                                    );
+                                  }
+                                },
                                 child: Image.asset(
                                   'images/whatsapp.png',
                                   width: width * .08,
@@ -596,7 +651,13 @@ class _CustomerdeatilListState extends State<CustomerdeatilList> {
                                 width: width * .02,
                               ),
                               InkWell(
-                                onTap: () {},
+                                onTap: () {
+                                  try {
+                                    UrlLaunchingHelper.phone(order.phone);
+                                  } on Exception catch (e) {
+                                    debugPrint(e.toString());
+                                  }
+                                },
                                 child: Image.asset(
                                   'images/call.png',
                                   width: width * .07,
@@ -922,16 +983,6 @@ class OrderedItems extends StatefulWidget {
 }
 
 class _OrderedItemsState extends State<OrderedItems> {
-  // List<Map<String, dynamic>> items = [
-  //   {'img': 'images/book.png', 'name': 'Book'},
-  //   {'img': 'images/bottle.png', 'name': 'Bottle'},
-  //   {'img': 'images/metal.png', 'name': 'Metal'},
-  //   {'img': 'images/motor.png', 'name': 'Motor'},
-  //   {'img': 'images/lap.png', 'name': 'E watse'},
-  //   {'img': 'images/vehicle.png', 'name': '2wheel/4wheel'},
-  //   {'img': 'images/other.png', 'name': 'Others'},
-  // ];
-
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;

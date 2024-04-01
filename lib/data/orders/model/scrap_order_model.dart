@@ -9,6 +9,7 @@ class ScrapOrderModel extends ScrapOrder {
   const ScrapOrderModel({
     required super.id,
     required super.orderId,
+    required super.assignedStaffId,
     required super.customerName,
     required super.phone,
     required super.address,
@@ -17,6 +18,7 @@ class ScrapOrderModel extends ScrapOrder {
     required super.roundOffAmt,
     required super.serviceCharge,
     required super.status,
+    required super.createdAt,
     required super.uid,
     super.invoicedScraps,
   });
@@ -35,6 +37,8 @@ class ScrapOrderModel extends ScrapOrder {
       serviceCharge: double.tryParse('${map['service_charge']}') ?? 0,
       status: map['status'] as String,
       uid: map['uid'] as String,
+      assignedStaffId: map['assigned_staff_id'] as String,
+      createdAt: (map['created_at'] as Timestamp).toDate(),
       // invoicedScraps: null,
     );
   }
@@ -53,6 +57,8 @@ class ScrapOrderModel extends ScrapOrder {
       serviceCharge: map['service_charge'] as double,
       status: map['status'] as String,
       uid: map['uid'] as String,
+      assignedStaffId: map['assigned_staff_id'] as String,
+      createdAt: DateTime.fromMillisecondsSinceEpoch(map['created_at'] as int),
       invoicedScraps: map['invoicedScraps'] != null
           ? InvoicedScrap.fromMap(map['invoicedScraps'] as Map<String, dynamic>)
           : null,
@@ -80,6 +86,8 @@ class ScrapOrderModel extends ScrapOrder {
       serviceCharge: serviceCharge ?? this.serviceCharge,
       status: status ?? this.status,
       uid: uid,
+      assignedStaffId: assignedStaffId,
+      createdAt: createdAt,
       invoicedScraps: invoicedScraps ?? this.invoicedScraps,
     );
   }
@@ -97,6 +105,8 @@ class ScrapOrderModel extends ScrapOrder {
       'service_charge': serviceCharge,
       'status': status,
       'uid': uid,
+      'assigned_staff_id': assignedStaffId,
+      'created_at': createdAt.millisecondsSinceEpoch,
       'invoicedScraps': invoicedScraps?.toMap(),
     };
   }
@@ -114,6 +124,8 @@ class ScrapOrderModel extends ScrapOrder {
       serviceCharge: serviceCharge,
       status: status,
       uid: uid,
+      assignedStaffId: assignedStaffId,
+      createdAt: createdAt,
       invoicedScraps: invoicedScraps?.clone(),
     );
   }

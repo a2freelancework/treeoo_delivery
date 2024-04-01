@@ -1,3 +1,5 @@
+// ignore_for_file: lines_longer_than_80_chars
+
 part of 'auth_bloc.dart';
 
 sealed class AuthState extends Equatable {
@@ -26,8 +28,12 @@ final class AuthLoggedOut extends AuthState {
 }
 
 final class AuthLoggedIn extends AuthState {
-  const AuthLoggedIn({required this.isVehicleSelected});
+  const AuthLoggedIn({
+    required this.isVehicleSelected,
+    required this.isLocationSelected,
+  });
   final bool isVehicleSelected;
+  final bool isLocationSelected;
 }
 
 final class AuthVerificationSentState extends AuthState {

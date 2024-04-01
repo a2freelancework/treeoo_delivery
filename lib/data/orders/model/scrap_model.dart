@@ -1,6 +1,7 @@
 // ignore_for_file: lines_longer_than_80_chars
 
 import 'package:equatable/equatable.dart';
+import 'package:treeo_delivery/core/services/user_auth_service.dart';
 import 'package:treeo_delivery/core/utils/type_def.dart';
 
 class ScrapModel extends Equatable {
@@ -11,20 +12,24 @@ class ScrapModel extends Equatable {
     required this.qty,
   });
 
-  ScrapModel.fromMap(DataMap map) : this(
-    price: double.tryParse('${map['price']}') ?? 0,
-    qty: double.tryParse('${map['qty']}') ?? 0,
-    icon: map['scrap_icon'] as String,
-    scrapName: map['scrap_name'] as String,
-  );
+  ScrapModel.fromMap(DataMap map)
+      : this(
+          price: double.tryParse('${map['price']}') ?? 0,
+          qty: double.tryParse('${map['qty']}') ?? 0,
+          icon: map['scrap_icon'] as String,
+          scrapName: map['scrap_name'] as String,
+        );
 
-  ScrapModel.fromQueryMap(QueryMap map) : this(
-    price: double.tryParse('${map.data()['price']}') ?? 0,
-    qty: double.tryParse('${map.data()['qty']}') ?? 0,
-    icon: map.data()['scrap_icon'] as String,
-    scrapName: map.data()['scrap_name'] as String,
-  );
-  
+  factory ScrapModel.fromQueryMap(QueryMap map) {
+    final place = UserAuth.I.currentUser?.pickupLocation?.name ?? '';
+    return ScrapModel(
+      price: double.tryParse('${(map.data()['price'] as DataMap)[place]}') ?? 0,
+      qty: double.tryParse('${map.data()['qty']}') ?? 0,
+      icon: map.data()['scrap_icon'] as String,
+      scrapName: map.data()['scrap_name'] as String,
+    );
+  }
+
   final double price;
   final double qty;
   final String icon;
@@ -36,11 +41,11 @@ class ScrapModel extends Equatable {
   ScrapModel copyWith({
     double? price,
     double? qty,
-  }){
+  }) {
     return ScrapModel(
-      scrapName: scrapName, 
-      icon: icon, 
-      price: price ?? this.price, 
+      scrapName: scrapName,
+      icon: icon,
+      price: price ?? this.price,
       qty: qty ?? this.qty,
     );
   }

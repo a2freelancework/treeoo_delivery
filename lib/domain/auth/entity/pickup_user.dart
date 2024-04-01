@@ -1,4 +1,8 @@
+// ignore_for_file: lines_longer_than_80_chars
+
 import 'package:equatable/equatable.dart';
+import 'package:treeo_delivery/core/app_enums/staff_status.dart';
+import 'package:treeo_delivery/core/services/user_location_helper.dart';
 import 'package:treeo_delivery/domain/auth/entity/vehicle.dart';
 
 class PickupUser extends Equatable {
@@ -10,16 +14,21 @@ class PickupUser extends Equatable {
     required this.status,
     required this.staffId,
     required this.sessionExpiry,
+    required this.orderCode,
+    this.pickupLocation,
     this.vehicle,
   });
+
   final String uid;
   final String phone;
   final String name;
-  final String status;
+  final StaffStatus status;
   final String staffId;
   final String email;
   final DateTime sessionExpiry;
   final Vehicle? vehicle;
+  final UserLocation? pickupLocation;
+  final String orderCode;
 
   @override
   List<Object?> get props => [uid];
@@ -28,7 +37,7 @@ class PickupUser extends Equatable {
   String toString() {
     return 'PickupUser(uid: $uid, email: $email, vehicle: $vehicle, '
         'phone: $phone, name: $name, status: $status) '
-        'staffId: $staffId, sessionExpiry: $sessionExpiry';
+        'staffId: $staffId, sessionExpiry: $sessionExpiry, pickupLocation: $pickupLocation';
   }
 }
 

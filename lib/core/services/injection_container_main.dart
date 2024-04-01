@@ -6,6 +6,7 @@ final sl = GetIt.instance;
 
 Future<void> init() async {
   final pref = await SharedPreferences.getInstance();
+  // FirebaseAuth.instance.signOut();
   sl
     ..registerLazySingleton(() => pref)
     ..registerLazySingleton(() => FirebaseFirestore.instance)
@@ -36,7 +37,7 @@ Future<void> authInit() async {
       () => GetVehicles(sl()),
     )
     ..registerLazySingleton(
-      () => SaveSelectedVehicles(sl()),
+      () => CacheVehicleOrLocation(sl()),
     )
     ..registerLazySingleton(
       () => GetPickupUserFromCache(sl()),
@@ -79,7 +80,7 @@ Future<void> orderInit() async {
     ..registerLazySingleton<OrderLocalDataSrc>(
       () => OrderLocalDataSrcImpl(sl()),
     )
-    
+
     // ..registerLazySingleton(() => GetTodaysPendingOrder(sl()))
     // ..registerLazySingleton(() => GetAllPendingAssignedOrder(sl()))
     ..registerLazySingleton(() => GetInvoicedScrapData(sl()))

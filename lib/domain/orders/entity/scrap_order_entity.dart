@@ -7,6 +7,7 @@ class ScrapOrder extends Equatable {
   const ScrapOrder({
     required this.id,
     required this.orderId,
+    required this.assignedStaffId,
     required this.address,
     required this.customerName, 
     required this.phone, 
@@ -15,12 +16,14 @@ class ScrapOrder extends Equatable {
     required this.roundOffAmt,
     required this.serviceCharge,
     required this.status,
+    required this.createdAt,
     required this.uid,
     required this.invoicedScraps,
   });
 
   final String id;
   final String orderId;
+  final String assignedStaffId;
   final String address;
   final String customerName;
   final String phone;
@@ -29,6 +32,7 @@ class ScrapOrder extends Equatable {
   final double roundOffAmt;
   final double serviceCharge;
   final String status;
+  final DateTime createdAt;
   final InvoicedScrap? invoicedScraps;
   final String uid;
 

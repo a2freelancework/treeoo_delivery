@@ -8,10 +8,13 @@ import 'package:page_animation_transition/animations/fade_animation_transition.d
 import 'package:page_animation_transition/page_animation_transition.dart';
 import 'package:treeo_delivery/core/services/user_auth_service.dart';
 import 'package:treeo_delivery/domain/auth/entity/pickup_user.dart';
+import 'package:treeo_delivery/main.dart';
+import 'package:treeo_delivery/presentation/authentication/auth_bloc/auth_bloc.dart';
+import 'package:treeo_delivery/presentation/screens/1_scrap_orders/pending_orders.dart';
+import 'package:treeo_delivery/presentation/screens/orderscreen/add_new_order_cubit/add_new_order_cubit.dart';
 import 'package:treeo_delivery/presentation/screens/orderscreen/addorders.dart';
 import 'package:treeo_delivery/presentation/screens/orderscreen/pending_assigned_order_cubit/pending_assigned_order_cubit.dart';
 import 'package:treeo_delivery/presentation/screens/orderscreen/scraphistory.dart';
-import 'package:treeo_delivery/presentation/screens/orderscreen/scraporders_screen.dart';
 import 'package:treeo_delivery/presentation/screens/scrapcollection/scrap_collection_cubit/scrap_collection_cubit.dart';
 import 'package:treeo_delivery/presentation/screens/scrapcollection/scrapdetail.dart';
 import 'package:treeo_delivery/presentation/widget/reusable_colors.dart';
@@ -44,12 +47,12 @@ class _DeliveryDashboardState extends State<DeliveryDashboard> {
         iconTheme: const IconThemeData(color: whiteColor),
         toolbarHeight: height * .09,
         title: Text(
-          'Trivandrum',
+          _user?.pickupLocation?.name ?? '',
           style: GoogleFonts.roboto(
             textStyle: const TextStyle(
               color: whiteColor,
               letterSpacing: .5,
-              fontSize: 20,
+              fontSize: 18,
               fontWeight: FontWeight.w500,
             ),
           ),
@@ -100,250 +103,265 @@ class _DeliveryDashboardState extends State<DeliveryDashboard> {
               leading: const Icon(Icons.logout),
               title: const Text('Log Out'),
               onTap: () {
+                context.read<AuthBloc>().add(const AuthSignOutEvent());
                 Navigator.pop(context);
               },
             ),
           ],
         ),
       ),
-      body: Padding(
-        padding: EdgeInsets.only(left: width * .05, right: width * .05),
-        child: _user != null
-            ? Column(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Spacer(),
-                  CircleAvatar(
-                    radius: 50,
-                    backgroundColor: extralightgreen,
-                    child: Image.asset(
-                      'images/bot1.png',
-                      fit: BoxFit.fill,
-                    ),
-                  ),
-                  const Spacer(),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Name',
-                        style: GoogleFonts.roboto(
-                          textStyle: const TextStyle(
-                            color: subtext,
-                            letterSpacing: .5,
-                            fontSize: 17,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
-                      Text(
-                        _user!.name,
-                        style: GoogleFonts.roboto(
-                          textStyle: const TextStyle(
-                            color: darkgreen,
-                            letterSpacing: .5,
-                            fontSize: 17,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(
-                    height: height * .01,
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Mobile Number',
-                        style: GoogleFonts.roboto(
-                          textStyle: const TextStyle(
-                            color: subtext,
-                            letterSpacing: .5,
-                            fontSize: 17,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
-                      Text(
-                        _user!.phone,
-                        style: GoogleFonts.roboto(
-                          textStyle: const TextStyle(
-                            color: darkgreen,
-                            letterSpacing: .5,
-                            fontSize: 17,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(
-                    height: height * .01,
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Vehicle Number',
-                        style: GoogleFonts.roboto(
-                          textStyle: const TextStyle(
-                            color: subtext,
-                            letterSpacing: .5,
-                            fontSize: 17,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
-                      Text(
-                        _user!.vehicle?.number ?? 'NOT SELECTED',
-                        style: GoogleFonts.roboto(
-                          textStyle: const TextStyle(
-                            color: darkgreen,
-                            letterSpacing: .5,
-                            fontSize: 17,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(
-                    height: height * .01,
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Vehicle Name',
-                        style: GoogleFonts.roboto(
-                          textStyle: const TextStyle(
-                            color: subtext,
-                            letterSpacing: .5,
-                            fontSize: 17,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
-                      Text(
-                        _user!.vehicle?.name ?? 'NOT SELECTED',
-                        style: GoogleFonts.roboto(
-                          textStyle: const TextStyle(
-                            color: darkgreen,
-                            letterSpacing: .5,
-                            fontSize: 17,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const Spacer(),
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      'Scrap Orders',
-                      style: GoogleFonts.roboto(
-                        textStyle: const TextStyle(
-                          color: blackColor,
-                          letterSpacing: .5,
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                        ),
+      body: BlocListener<AuthBloc, AuthState>(
+        listenWhen: (_, st) => st is AuthLoggedOut,
+        listener: (context, state) {
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute<void>(builder: (context) => const AuthPage()),
+            (route) => false,
+          );
+        },
+        child: Padding(
+          padding: EdgeInsets.only(left: width * .05, right: width * .05),
+          child: _user != null
+              ? Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Spacer(),
+                    CircleAvatar(
+                      radius: 50,
+                      backgroundColor: extralightgreen,
+                      child: Image.asset(
+                        'images/bot1.png',
+                        fit: BoxFit.fill,
                       ),
                     ),
-                  ),
-                  SizedBox(
-                    height: height * .02,
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.of(context).push(
-                            PageAnimationTransition(
-                              page: BlocProvider(
-                                create: (context) =>
-                                    GetIt.I.get<PendingAssignedOrderCubit>()
-                                      ..getAllPendingAssignedOrders(),
-                                child: const ScrapOrderScreen(),
+                    const Spacer(),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Name',
+                          style: GoogleFonts.roboto(
+                            textStyle: const TextStyle(
+                              color: subtext,
+                              letterSpacing: .5,
+                              fontSize: 17,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                        Text(
+                          _user!.name,
+                          style: GoogleFonts.roboto(
+                            textStyle: const TextStyle(
+                              color: darkgreen,
+                              letterSpacing: .5,
+                              fontSize: 17,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(
+                      height: height * .01,
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Mobile Number',
+                          style: GoogleFonts.roboto(
+                            textStyle: const TextStyle(
+                              color: subtext,
+                              letterSpacing: .5,
+                              fontSize: 17,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                        Text(
+                          _user!.phone,
+                          style: GoogleFonts.roboto(
+                            textStyle: const TextStyle(
+                              color: darkgreen,
+                              letterSpacing: .5,
+                              fontSize: 17,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(
+                      height: height * .01,
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Vehicle Number',
+                          style: GoogleFonts.roboto(
+                            textStyle: const TextStyle(
+                              color: subtext,
+                              letterSpacing: .5,
+                              fontSize: 17,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                        Text(
+                          _user!.vehicle?.number ?? 'NOT SELECTED',
+                          style: GoogleFonts.roboto(
+                            textStyle: const TextStyle(
+                              color: darkgreen,
+                              letterSpacing: .5,
+                              fontSize: 17,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(
+                      height: height * .01,
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Vehicle Name',
+                          style: GoogleFonts.roboto(
+                            textStyle: const TextStyle(
+                              color: subtext,
+                              letterSpacing: .5,
+                              fontSize: 17,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                        Text(
+                          _user!.vehicle?.name ?? 'NOT SELECTED',
+                          style: GoogleFonts.roboto(
+                            textStyle: const TextStyle(
+                              color: darkgreen,
+                              letterSpacing: .5,
+                              fontSize: 17,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const Spacer(),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        'Scrap Orders',
+                        style: GoogleFonts.roboto(
+                          textStyle: const TextStyle(
+                            color: blackColor,
+                            letterSpacing: .5,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      height: height * .02,
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.of(context).push(
+                              PageAnimationTransition(
+                                page: BlocProvider(
+                                  create: (context) =>
+                                      GetIt.I.get<PendingAssignedOrderCubit>()
+                                        ..getAllPendingAssignedOrders(),
+                                  child: const ScrapOrderScreen(),
+                                ),
+                                pageAnimationType: FadeAnimationTransition(),
                               ),
-                              pageAnimationType: FadeAnimationTransition(),
-                            ),
-                          );
-                        },
-                        child: CustomContainer(
-                          heading: 'Scrap',
-                          subheading: 'Orders',
-                          icon: Icons.edit_document,
+                            );
+                          },
+                          child: CustomContainer(
+                            heading: 'Scrap',
+                            subheading: 'Orders',
+                            icon: Icons.edit_document,
+                          ),
                         ),
-                      ),
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.of(context).push(
-                            PageAnimationTransition(
-                              page: const AddOrders(),
-                              pageAnimationType: FadeAnimationTransition(),
-                            ),
-                          );
-                        },
-                        child: CustomContainer(
-                          heading: 'Add',
-                          subheading: 'Orders',
-                          icon: Icons.document_scanner,
-                        ),
-                      ),
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.of(context).push(
-                            PageAnimationTransition(
-                              page: const ScrapHistory(),
-                              pageAnimationType: FadeAnimationTransition(),
-                            ),
-                          );
-                        },
-                        child: CustomContainer(
-                          heading: 'Scrap',
-                          subheading: 'History',
-                          icon: Icons.history,
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(
-                    height: height * .02,
-                  ),
-                  Row(
-                    children: [
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.of(context).push(
-                            PageAnimationTransition(
-                              page: BlocProvider(
-                                create: (context) => GetIt.I.get<ScrapCollectionCubit>()
-                                  ..getMyCollection(),
-                                child: const ScrapDetail(),
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.of(context).push(
+                              PageAnimationTransition(
+                                page: BlocProvider(
+                                  create: (context) => AddNewOrderCubit(),
+                                  child: const AddOrders(),
+                                ),
+                                pageAnimationType: FadeAnimationTransition(),
                               ),
-                              pageAnimationType: FadeAnimationTransition(),
-                            ),
-                          );
-                        },
-                        child: CustomContainer(
-                          heading: 'Scrap',
-                          subheading: 'Collections',
-                          icon: Icons.collections_bookmark,
+                            );
+                          },
+                          child: CustomContainer(
+                            heading: 'Add',
+                            subheading: 'Orders',
+                            icon: Icons.document_scanner,
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                  const Spacer(),
-                ],
-              )
-            : const Center(
-                child: Text('Something went wrong! Please login again.'),
-              ),
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.of(context).push(
+                              PageAnimationTransition(
+                                page: const ScrapHistory(),
+                                pageAnimationType: FadeAnimationTransition(),
+                              ),
+                            );
+                          },
+                          child: CustomContainer(
+                            heading: 'Scrap',
+                            subheading: 'History',
+                            icon: Icons.history,
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(
+                      height: height * .02,
+                    ),
+                    Row(
+                      children: [
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.of(context).push(
+                              PageAnimationTransition(
+                                page: BlocProvider(
+                                  create: (context) =>
+                                      GetIt.I.get<ScrapCollectionCubit>()
+                                        ..getMyCollection(),
+                                  child: const ScrapDetail(),
+                                ),
+                                pageAnimationType: FadeAnimationTransition(),
+                              ),
+                            );
+                          },
+                          child: CustomContainer(
+                            heading: 'Scrap',
+                            subheading: 'Collections',
+                            icon: Icons.collections_bookmark,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const Spacer(),
+                  ],
+                )
+              : const Center(
+                  child: Text('Something went wrong! Please login again.'),
+                ),
+        ),
       ),
     );
   }

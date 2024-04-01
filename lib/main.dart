@@ -11,12 +11,16 @@ import 'package:treeo_delivery/presentation/authentication/forgot_password_page.
 import 'package:treeo_delivery/presentation/authentication/login_page.dart';
 import 'package:treeo_delivery/presentation/authentication/sign_up_page.dart';
 import 'package:treeo_delivery/presentation/screens/deliverydashboard.dart';
+import 'package:treeo_delivery/presentation/screens/select_location_screen.dart';
 import 'package:treeo_delivery/presentation/screens/vehicleselection.dart';
 import 'package:treeo_delivery/presentation/widget/reusable_colors.dart';
 
 // https://www.youtube.com/watch?v=WvGHJef7O-g
 
 ///   dart fix --apply --code=unused_import
+
+
+// UserAuth.I.currentUser
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -45,22 +49,14 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({
+class NewWidgetIcon extends StatelessWidget {
+  const NewWidgetIcon({
     super.key,
   });
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      backgroundColor: whiteColor,
-      body: UserRegisterScreen(),
-    );
+    return const Icon(Icons.add_a_photo);
   }
 }
 
@@ -82,7 +78,11 @@ class AuthPage extends StatelessWidget {
       builder: (context, state) {
         if (state is AuthLoggedIn) {
           if (state.isVehicleSelected) {
-            return const DeliveryDashboard();
+            if (state.isLocationSelected) {
+              return const DeliveryDashboard();
+            } else {
+              return const SelectLocation();
+            }
           } else {
             return const VehicleSelection();
           }
@@ -122,25 +122,9 @@ class AuthSplash extends StatelessWidget {
   }
 }
 
-const iconPath =
-    'https://firebasestorage.googleapis.com/v0/b/treoo-database.appspot.com/o/category_icon%2Fcardbod.png?alt=media&token=473bdf59-f194-473c-a43d-ff9908123488';
+const iconPath = 'https://firebasestorage.googleapis.com/v0/b/treoo-database.appspot.com/o/category_icon%2Fcardbod.png?alt=media&token=473bdf59-f194-473c-a43d-ff9908123488';
 
-
-
-// import 'package:treeo_delivery/presentation/widget/appbarsection.dart';
-// final l = DeliveryDashboard();
-// [ CustomerdeatilList ] in [ScrapOrderScreen]
-
-// import 'package:treeo_delivery/presentation/screens/billsection/billview.dart';
-// [ BillViewScreen ]
-
-
-// import 'package:treeo_delivery/presentation/screens/orderscreen/orderdetails.dart';
-// [OrderDetails]  Red Cancel order button
-
-
-// import 'package:treeo_delivery/presentation/screens/billsection/billview.dart';
-// [BillViewScreen] last confirm orderPage
-// --------------------------------------------------------------------------------------
-
-//
+/*
+flutter build ipa --release
+flutter build appbundle --release
+*/

@@ -1,8 +1,11 @@
+// ignore_for_file: lines_longer_than_80_chars
+
 import 'package:dartz/dartz.dart';
 import 'package:flutter/foundation.dart' show debugPrint;
 import 'package:treeo_delivery/core/errors/exceptions.dart';
 import 'package:treeo_delivery/core/errors/failures.dart';
 import 'package:treeo_delivery/core/services/user_auth_service.dart';
+import 'package:treeo_delivery/core/services/user_location_helper.dart';
 import 'package:treeo_delivery/data/auth/data_source/auth_data_src.dart';
 import 'package:treeo_delivery/data/auth/data_source/email_password_src.dart';
 import 'package:treeo_delivery/data/auth/model/pickup_user_model.dart';
@@ -30,15 +33,8 @@ class AuthRepoImpl implements AuthRepo {
 
   @override
   Future<Either<Failure, void>> signOut() async {
-    // try {
-    //   await _dataSrc.resetCache();
-    //   debugPrint(' ======= USER SIGNED OUT ======= ');
-    //   return const Right(null);
-    // } on CacheException catch (e) {
-    //   debugPrint(' ======= signOut $e ======= ');
-    //   return Left(CacheFailure.fromException());
-    // }
     try {
+      await _dataSrc.resetCache();
       await _emailPaswdAuth.signOut();
       return const Right(null);
     } on ServerException catch (e) {
@@ -64,9 +60,9 @@ class AuthRepoImpl implements AuthRepo {
     required String email,
     required String password,
   }) async {
+    
     try {
-      final user =
-          await _emailPaswdAuth.signIn(email: email, password: password);
+      final user = await _emailPaswdAuth.signIn(email: email, password: password,);
       await _dataSrc.saveUserDataLocally(user);
       return const Right(null);
     } on ServerException catch (e) {
@@ -97,13 +93,21 @@ class AuthRepoImpl implements AuthRepo {
   }
 
   @override
-  Future<Either<Failure, void>> saveSelectedVehicle(Vehicle vehicle) async {
+  Future<Either<Failure, void>> cacheVehicleOrLocation({
+    Vehicle? vehicle,
+    UserLocation? location,
+  }) async {
     var user = UserAuth.I.currentUser as PickupUserModel?;
-    debugPrint('**** ****** $vehicle     $user');
     try {
-      user = user!.copyWith(vehicle: vehicle);
-    debugPrint('**** ****** copyWith********* ****** $user');
+      user = user!.copyWith(
+        vehicle: vehicle,
+        pickupLocation: location,
+      );
+
       await _dataSrc.saveUserDataLocally(user);
+      if (location != null) {
+        await _emailPaswdAuth.updateUserLocation(location);
+      }
       return const Right(null);
     } on ServerException catch (e) {
       debugPrint('**** ******   [ERROR] ********* *****');

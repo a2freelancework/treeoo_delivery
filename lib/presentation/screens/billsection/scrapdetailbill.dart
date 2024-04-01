@@ -10,6 +10,7 @@ class ScrapdetailBill extends StatefulWidget {
 }
 
 class _ScrapdetailBillState extends State<ScrapdetailBill> {
+  
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;

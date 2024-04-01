@@ -39,9 +39,8 @@ class _ScrapOrderScreenState extends State<ScrapOrderScreen> {
         physics: const BouncingScrollPhysics(),
         child: Column(
           children: [
-            SizedBox(
-              height: height * .065,
-            ),
+            SizedBox(height: height * .065),
+            
             const AppbarSection(
               heading: 'Pending Orders',
             ),
@@ -52,9 +51,7 @@ class _ScrapOrderScreenState extends State<ScrapOrderScreen> {
               name: 'All Orders',
               onTap: () {},
             ),
-            SizedBox(
-              height: height * .02,
-            ),
+            SizedBox(height: height * .02),
             SearchBox(
               onEditingComplete: _loadOrders,
             ),

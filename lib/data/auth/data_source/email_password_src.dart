@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart' show debugPrint;
 import 'package:treeo_delivery/core/errors/exceptions.dart';
 import 'package:treeo_delivery/core/services/user_auth_service.dart';
+import 'package:treeo_delivery/core/services/user_location_helper.dart';
 import 'package:treeo_delivery/data/auth/model/pickup_user_model.dart';
 import 'package:treeo_delivery/domain/auth/entity/vehicle.dart';
 
@@ -23,10 +24,14 @@ abstract class EmailPasswordAuth {
   Future<void> signOut();
 
   Future<Iterable<Vehicle>> getVehicles();
+
+  Future<void> updateUserLocation(UserLocation location);
 }
 
 const _staffCol = 'staff_details';
 const _vehicle = 'pickup_vehicle';
+const _statusController = 'treeoo_status_control';
+const _admin = 'ADMIN';
 
 class EmailPasswordAuthImpl implements EmailPasswordAuth {
   const EmailPasswordAuthImpl({
@@ -77,7 +82,9 @@ class EmailPasswordAuthImpl implements EmailPasswordAuth {
     try {
       debugPrint(' ******************************* *****************');
       final credential = await _auth.signInWithEmailAndPassword(
-          email: email, password: password,);
+        email: email,
+        password: password,
+      );
       debugPrint(' $credential *****************');
       if (!credential.user!.emailVerified) {
         // email not verified
@@ -180,18 +187,25 @@ class EmailPasswordAuthImpl implements EmailPasswordAuth {
         message: e.message ?? 'Something went wrong',
         statusCode: e.code,
       );
-    } on ServerException {
+    } on ServerException catch (e, s){
+      debugPrint('ServerException  ==== $e ==== ');
+      debugPrint(s.toString());
       rethrow;
-    } catch (e) {
+    } catch (e, s) {
+      debugPrint('catch ==== $e ==== ');
+      debugPrint(s.toString());
       throw ServerException(message: e.toString(), statusCode: '505');
     }
   }
 
   Future<void> _createUserData() async {
     await _fs.collection(_staffCol).doc(_auth.currentUser!.uid).set({
-      'created_date': DateTime.now(),
-      'email': _auth.currentUser!.email!,
-      'status': 'NEW',
+        'created_date': DateTime.now(),
+        'email': _auth.currentUser!.email!,
+        'status': 'NEW',
+      });
+    await _fs.collection(_statusController).doc(_admin).update({
+      'new_staff_register_date': DateTime.now(),
     });
   }
 
@@ -204,7 +218,8 @@ class EmailPasswordAuthImpl implements EmailPasswordAuth {
           .then((value) => sendVerificationEmail());
     } on FirebaseAuthException catch (e) {
       debugPrint(
-          '[FirebaseAuthException] _ifEmailAlreadyUsedReSendLink:  ${e.code}',);
+        '[FirebaseAuthException] _ifEmailAlreadyUsedReSendLink:  ${e.code}',
+      );
       throw ServerException(
         message: e.code.replaceAll('-', ' '),
         statusCode: '400',
@@ -235,6 +250,18 @@ class EmailPasswordAuthImpl implements EmailPasswordAuth {
       );
     } catch (e) {
       throw ServerException(message: e.toString(), statusCode: '500');
+    }
+  }
+
+  @override
+  Future<void> updateUserLocation(UserLocation location) async {
+    try {
+      final user = UserAuth.I.currentUser!;
+      await _fs.collection(_staffCol).doc(user.uid).update({
+        'staff_district': location.name,
+      });
+    } catch (e) {
+      debugPrint('$e');
     }
   }
 }

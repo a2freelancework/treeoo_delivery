@@ -64,7 +64,12 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           await _signOut();
           emit(AuthLoggedOut(email: cred.email, password: cred.password));
         } else {
-          emit(AuthLoggedIn(isVehicleSelected: user.vehicle != null));
+          emit(
+            AuthLoggedIn(
+              isVehicleSelected: user.vehicle != null,
+              isLocationSelected: user.pickupLocation != null,
+            ),
+          );
         }
       },
     );
@@ -88,8 +93,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     );
 
     result.fold(
-      (failure) => emit(AuthError(failure.errorMessage)),
-      (_) => emit(const AuthLoggedIn(isVehicleSelected: false)),
+      (failure) => emit(AuthError(failure.message)),
+      (_) => emit(const AuthLoggedIn(
+        isVehicleSelected: false,
+        isLocationSelected: false,
+      ),),
     );
   }
 
@@ -104,7 +112,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     );
 
     result.fold(
-      (failure) => emit(AuthError(failure.errorMessage)),
+      (failure) => emit(AuthError(failure.message)),
       (_) =>
           emit(const AuthVerificationSentState(EMAIL_VERIFICATION_LINK_SENT)),
     );
@@ -130,7 +138,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     final result = await _forgotPassword(event.email);
 
     result.fold(
-      (failure) => emit(AuthError(failure.errorMessage)),
+      (failure) => emit(AuthError(failure.message)),
       (_) => emit(const AuthVerificationSentState(PASSWORD_RESET_LINK_SENT)),
     );
   }

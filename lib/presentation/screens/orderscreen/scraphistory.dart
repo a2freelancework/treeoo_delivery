@@ -60,23 +60,16 @@ class _ScrapHistoryState extends State<ScrapHistory> {
         physics: const BouncingScrollPhysics(),
         child: Column(
           children: [
-            SizedBox(
-              height: height * .065,
-            ),
-            const AppbarSection(
-              heading: 'Scrap History',
-            ),
-            SizedBox(
-              height: height * .015,
-            ),
+            SizedBox(height: height * .065),
+            const AppbarSection(heading: 'Scrap History'),
+            SizedBox(height: height * .015),
+            
             SearchBox(
               onEditingComplete: (text) {
 
               },
             ),
-            SizedBox(
-              height: height * .015,
-            ),
+            SizedBox(height: height * .015),
             RescheduledCustomerData(
               controller: _orderStreamControl,
             ),
