@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:lottie/lottie.dart';
+import 'package:treeo_delivery/core/extensions/context_ext.dart';
 import 'package:treeo_delivery/core/services/user_auth_service.dart';
 import 'package:treeo_delivery/core/utils/snack_bar.dart';
 import 'package:treeo_delivery/domain/auth/entity/vehicle.dart';
@@ -143,13 +144,7 @@ class _VehicleSelectionState extends State<VehicleSelection> {
                         ) else GestureDetector(
                           onTap: () {
                             _cacheSelectedVehicleTo(_vehicles[_selectedindex])
-                                .then((value) => Navigator.push(
-                                      context,
-                                      MaterialPageRoute<void>(
-                                        builder: (context) =>
-                                            const SelectLocation(),
-                                      ),
-                                    ),);
+                                .then((value) => context.push(const SelectLocation()),);
                           },
                           child: Confirmcontainer(
                             width: width * .8,

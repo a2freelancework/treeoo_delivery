@@ -6,17 +6,18 @@ import 'package:get_it/get_it.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:page_animation_transition/animations/fade_animation_transition.dart';
 import 'package:page_animation_transition/page_animation_transition.dart';
+import 'package:treeo_delivery/core/extensions/context_ext.dart';
 import 'package:treeo_delivery/core/services/user_auth_service.dart';
 import 'package:treeo_delivery/domain/auth/entity/pickup_user.dart';
 import 'package:treeo_delivery/main.dart';
 import 'package:treeo_delivery/presentation/authentication/auth_bloc/auth_bloc.dart';
 import 'package:treeo_delivery/presentation/screens/1_scrap_orders/pending_assigned_order_cubit/pending_assigned_order_cubit.dart';
-import 'package:treeo_delivery/presentation/screens/1_scrap_orders/pending_orders.dart';
+import 'package:treeo_delivery/presentation/screens/1_scrap_orders/pending_orders_screen.dart';
 import 'package:treeo_delivery/presentation/screens/2_add_orders/add_new_order_cubit/add_new_order_cubit.dart';
 import 'package:treeo_delivery/presentation/screens/2_add_orders/add_orders_screen.dart';
-import 'package:treeo_delivery/presentation/screens/3_scrap_history/scrap_history_screen.dart';
-import 'package:treeo_delivery/presentation/screens/4_scrap_collection/scrap_collection_cubit/scrap_collection_cubit.dart';
+import 'package:treeo_delivery/presentation/screens/3_order_history/order_history_screen.dart';
 import 'package:treeo_delivery/presentation/screens/4_scrap_collection/scrap_collection_screen.dart';
+import 'package:treeo_delivery/presentation/widget/app_drawer.dart';
 import 'package:treeo_delivery/presentation/widget/reusable_colors.dart';
 import 'package:treeo_delivery/presentation/widget/reusablewidgets.dart';
 
@@ -40,6 +41,7 @@ class _DeliveryDashboardState extends State<DeliveryDashboard> {
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
     final height = MediaQuery.of(context).size.height;
+    final kHeight01 = SizedBox(height: height * .01);
     return Scaffold(
       backgroundColor: whiteColor,
       appBar: AppBar(
@@ -58,66 +60,11 @@ class _DeliveryDashboardState extends State<DeliveryDashboard> {
           ),
         ),
       ),
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: <Widget>[
-            DrawerHeader(
-              decoration: const BoxDecoration(
-                color: darkgreen,
-              ),
-              child: Text(
-                Appname,
-                style: GoogleFonts.roboto(
-                  textStyle: const TextStyle(
-                    color: whiteColor,
-                    letterSpacing: .5,
-                    fontSize: 25,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
-            ),
-            ListTile(
-              leading: const Icon(Icons.document_scanner_rounded),
-              title: const Text('Terms And Conditions'),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.star),
-              title: const Text('Rate Us'),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.call),
-              title: const Text('Call Us'),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.logout),
-              title: const Text('Log Out'),
-              onTap: () {
-                context.read<AuthBloc>().add(const AuthSignOutEvent());
-                Navigator.pop(context);
-              },
-            ),
-          ],
-        ),
-      ),
+      drawer: const AppDrawer(),
       body: BlocListener<AuthBloc, AuthState>(
         listenWhen: (_, st) => st is AuthLoggedOut,
         listener: (context, state) {
-          Navigator.pushAndRemoveUntil(
-            context,
-            MaterialPageRoute<void>(builder: (context) => const AuthPage()),
-            (route) => false,
-          );
+          context.pushAndRemoveUntil(const AuthPage());
         },
         child: Padding(
           padding: EdgeInsets.only(left: width * .05, right: width * .05),
@@ -135,122 +82,24 @@ class _DeliveryDashboardState extends State<DeliveryDashboard> {
                       ),
                     ),
                     const Spacer(),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Name',
-                          style: GoogleFonts.roboto(
-                            textStyle: const TextStyle(
-                              color: subtext,
-                              letterSpacing: .5,
-                              fontSize: 17,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ),
-                        Text(
-                          _user!.name,
-                          style: GoogleFonts.roboto(
-                            textStyle: const TextStyle(
-                              color: darkgreen,
-                              letterSpacing: .5,
-                              fontSize: 17,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                      ],
+                    _StaffDataRow(
+                      label: 'Name',
+                      value: _user!.name,
                     ),
-                    SizedBox(
-                      height: height * .01,
+                    kHeight01,
+                    _StaffDataRow(
+                      label: 'Mobile Number',
+                      value: _user!.phone,
                     ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Mobile Number',
-                          style: GoogleFonts.roboto(
-                            textStyle: const TextStyle(
-                              color: subtext,
-                              letterSpacing: .5,
-                              fontSize: 17,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ),
-                        Text(
-                          _user!.phone,
-                          style: GoogleFonts.roboto(
-                            textStyle: const TextStyle(
-                              color: darkgreen,
-                              letterSpacing: .5,
-                              fontSize: 17,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                      ],
+                    kHeight01,
+                    _StaffDataRow(
+                      label: 'Vehicle Number',
+                      value: _user!.vehicle?.number ?? 'NOT SELECTED',
                     ),
-                    SizedBox(
-                      height: height * .01,
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Vehicle Number',
-                          style: GoogleFonts.roboto(
-                            textStyle: const TextStyle(
-                              color: subtext,
-                              letterSpacing: .5,
-                              fontSize: 17,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ),
-                        Text(
-                          _user!.vehicle?.number ?? 'NOT SELECTED',
-                          style: GoogleFonts.roboto(
-                            textStyle: const TextStyle(
-                              color: darkgreen,
-                              letterSpacing: .5,
-                              fontSize: 17,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(
-                      height: height * .01,
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Vehicle Name',
-                          style: GoogleFonts.roboto(
-                            textStyle: const TextStyle(
-                              color: subtext,
-                              letterSpacing: .5,
-                              fontSize: 17,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ),
-                        Text(
-                          _user!.vehicle?.name ?? 'NOT SELECTED',
-                          style: GoogleFonts.roboto(
-                            textStyle: const TextStyle(
-                              color: darkgreen,
-                              letterSpacing: .5,
-                              fontSize: 17,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                      ],
+                    kHeight01,
+                    _StaffDataRow(
+                      label: 'Vehicle Name',
+                      value: _user!.vehicle?.name ?? 'NOT SELECTED',
                     ),
                     const Spacer(),
                     Align(
@@ -267,91 +116,58 @@ class _DeliveryDashboardState extends State<DeliveryDashboard> {
                         ),
                       ),
                     ),
-                    SizedBox(
-                      height: height * .02,
-                    ),
+                    SizedBox(height: height * .02),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        GestureDetector(
+                        CustomContainer(
                           onTap: () {
-                            Navigator.of(context).push(
-                              PageAnimationTransition(
-                                page: BlocProvider(
-                                  create: (context) =>
-                                      GetIt.I.get<PendingAssignedOrderCubit>()
-                                        ..getAllPendingAssignedOrders(),
-                                  child: const PendingOrderScreen(),
-                                ),
-                                pageAnimationType: FadeAnimationTransition(),
+                            pushScreen(
+                              BlocProvider(
+                                create: (context) =>
+                                    GetIt.I.get<PendingAssignedOrderCubit>()
+                                      ..getAllPendingAssignedOrders(),
+                                child: const PendingOrderScreen(),
                               ),
                             );
                           },
-                          child: CustomContainer(
-                            heading: 'Scrap',
-                            subheading: 'Orders',
-                            icon: Icons.edit_document,
-                          ),
+                          heading: 'Scrap',
+                          subheading: 'Orders',
+                          icon: Icons.edit_document,
                         ),
-                        GestureDetector(
+                        CustomContainer(
                           onTap: () {
-                            Navigator.of(context).push(
-                              PageAnimationTransition(
-                                page: BlocProvider(
-                                  create: (context) => AddNewOrderCubit(),
-                                  child: const AddOrdersScreen(),
-                                ),
-                                pageAnimationType: FadeAnimationTransition(),
+                            pushScreen(
+                              BlocProvider(
+                                create: (context) => AddNewOrderCubit(),
+                                child: const AddOrdersScreen(),
                               ),
                             );
                           },
-                          child: CustomContainer(
-                            heading: 'Add',
-                            subheading: 'Orders',
-                            icon: Icons.document_scanner,
-                          ),
+                          heading: 'Add',
+                          subheading: 'Orders',
+                          icon: Icons.document_scanner,
                         ),
-                        GestureDetector(
+                        CustomContainer(
                           onTap: () {
-                            Navigator.of(context).push(
-                              PageAnimationTransition(
-                                page: const ScrapHistoryScreen(),
-                                pageAnimationType: FadeAnimationTransition(),
-                              ),
-                            );
+                            pushScreen(const OrderHistoryScreen());
                           },
-                          child: CustomContainer(
-                            heading: 'Scrap',
-                            subheading: 'History',
-                            icon: Icons.history,
-                          ),
+                          heading: 'Scrap',
+                          subheading: 'History',
+                          icon: Icons.history,
                         ),
                       ],
                     ),
-                    SizedBox(
-                      height: height * .02,
-                    ),
+                    SizedBox(height: height * .02),
                     Row(
                       children: [
-                        GestureDetector(
+                        CustomContainer(
                           onTap: () {
-                            Navigator.of(context).push(
-                              PageAnimationTransition(
-                                page: BlocProvider(
-                                  create: (context) =>
-                                      GetIt.I.get<ScrapCollectionCubit>()
-                                        ..getMyCollection(),
-                                  child: const ScrapCollectionScreen(),
-                                ),
-                                pageAnimationType: FadeAnimationTransition(),
-                              ),
-                            );
+                            pushScreen(const ScrapCollectionScreen());
                           },
-                          child: CustomContainer(
-                            heading: 'Scrap',
-                            subheading: 'Collections',
-                            icon: Icons.collections_bookmark,
-                          ),
+                          heading: 'Scrap',
+                          subheading: 'Collections',
+                          icon: Icons.collections_bookmark,
                         ),
                       ],
                     ),
@@ -363,6 +179,56 @@ class _DeliveryDashboardState extends State<DeliveryDashboard> {
                 ),
         ),
       ),
+    );
+  }
+
+  Future<void> pushScreen(Widget page) async {
+    await Navigator.of(context).push(
+      PageAnimationTransition(
+        page: page,
+        pageAnimationType: FadeAnimationTransition(),
+      ),
+    );
+  }
+}
+
+class _StaffDataRow extends StatelessWidget {
+  const _StaffDataRow({
+    required this.label,
+    required this.value,
+  });
+
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          label,
+          style: GoogleFonts.roboto(
+            textStyle: const TextStyle(
+              color: subtext,
+              letterSpacing: .5,
+              fontSize: 17,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ),
+        Text(
+          value,
+          style: GoogleFonts.roboto(
+            textStyle: const TextStyle(
+              color: darkgreen,
+              letterSpacing: .5,
+              fontSize: 17,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

@@ -20,7 +20,7 @@ class OrderUsecases {
   }) async =>
       _repo.rescheduleOrder(date: date, id: id);
 
-  FutureMyCollections getMyCollection() => _repo.getMyCollection();
+  // FutureMyCollections getMyCollection(ScrapType type) => _repo.getMyCollection(type);
 
   Stream<Iterable<ScrapOrder>> getAllPendingAssignedOrders(
     String? searchText,

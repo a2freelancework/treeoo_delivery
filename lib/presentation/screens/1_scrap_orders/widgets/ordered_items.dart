@@ -1,11 +1,16 @@
-
 import 'package:flutter/material.dart';
+import 'package:treeo_delivery/core/app_enums/scrap_type.dart';
 import 'package:treeo_delivery/data/orders/model/invoiced_scrap.dart';
 import 'package:treeo_delivery/presentation/widget/reusable_colors.dart';
 
 class OrderedItems extends StatefulWidget {
-  const OrderedItems({required this.invoicedScraps, super.key});
+  const OrderedItems({
+    required this.invoicedScraps,
+    required this.type,
+    super.key,
+  });
   final InvoicedScrap invoicedScraps;
+  final ScrapType type;
 
   @override
   State<OrderedItems> createState() => _OrderedItemsState();
@@ -14,13 +19,13 @@ class OrderedItems extends StatefulWidget {
 class _OrderedItemsState extends State<OrderedItems> {
   @override
   Widget build(BuildContext context) {
-    final width = MediaQuery.of(context).size.width;
     final height = MediaQuery.of(context).size.height;
     return GridView.builder(
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 3,
+        crossAxisCount: 4,
         mainAxisSpacing: 8,
         crossAxisSpacing: 8,
+        childAspectRatio: 0.85,
       ),
       physics: const BouncingScrollPhysics(),
       padding: const EdgeInsets.only(
@@ -34,36 +39,33 @@ class _OrderedItemsState extends State<OrderedItems> {
       itemBuilder: (context, index) {
         final scrap = widget.invoicedScraps.scraps[index];
         return Container(
+          padding: const EdgeInsets.all(5),
           decoration: BoxDecoration(
-            color: peahcream,
+            color: widget.type == ScrapType.scrap
+                ? Pallete.scrapGreen
+                : Pallete.wasteOrange,
             borderRadius: BorderRadius.circular(10),
           ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Image.network(
+                // imageUrl: 
                 scrap.icon,
-                width: width * .15,
+                width: 30,
               ),
-              SizedBox(
-                height: height * .01,
-              ),
-              Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(3),
-                  child: Text(
-                    scrap.scrapName,
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 1,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w500,
-                      fontFamily: 'Gilroy',
-                      fontSize: 15,
-                      letterSpacing: .4,
-                      color: otpgrey,
-                    ),
-                  ),
+              SizedBox(height: height * .005),
+              Text(
+                scrap.scrapName,
+                
+                style: const TextStyle(
+                  fontWeight: FontWeight.w500,
+                  fontFamily: 'Gilroy',
+                  fontSize: 14,
+                  letterSpacing: .4,
+                  color: otpgrey,
                 ),
+                textAlign: TextAlign.center,
               ),
             ],
           ),

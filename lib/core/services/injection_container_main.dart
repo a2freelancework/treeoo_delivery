@@ -7,6 +7,7 @@ final sl = GetIt.instance;
 Future<void> init() async {
   final pref = await SharedPreferences.getInstance();
   // FirebaseAuth.instance.signOut();
+  // pref.clear();
   sl
     ..registerLazySingleton(() => pref)
     ..registerLazySingleton(() => FirebaseFirestore.instance)

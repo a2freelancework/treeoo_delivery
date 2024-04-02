@@ -14,3 +14,8 @@ const otpgrey = Color(0xff757575);
 const shadowcolor = Color.fromARGB(255, 226, 225, 225);
 const red = Colors.red;
 const String Appname = 'Treeoo';
+
+class Pallete {
+  static const scrapGreen = Color(0xffd4e1e3);
+  static const wasteOrange = Color(0xFFFFEDD1);
+}

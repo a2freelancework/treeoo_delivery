@@ -2,10 +2,12 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart' show debugPrint;
+import 'package:treeo_delivery/core/app_enums/scrap_type.dart';
 import 'package:treeo_delivery/core/errors/exceptions.dart';
 import 'package:treeo_delivery/core/services/user_auth_service.dart';
 import 'package:treeo_delivery/core/utils/string_constants.dart';
-import 'package:treeo_delivery/core/utils/type_def.dart' show ScrapOrderStream;
+import 'package:treeo_delivery/core/utils/type_def.dart'
+    show ScrapOrderStream, StreamCollections;
 import 'package:treeo_delivery/data/orders/model/collected_item.dart';
 import 'package:treeo_delivery/data/orders/model/collection_model.dart';
 import 'package:treeo_delivery/data/orders/model/invoiced_scrap.dart';
@@ -26,7 +28,7 @@ abstract class OrderRemoteDataSrc {
 
   Future<int?> getOrderUpdatedDate();
 
-  Future<Iterable<CollectionModel>> getLast7daysMyCollection();
+  StreamCollections getLast7daysMyCollection(ScrapType type);
 
   Future<void> cancelOrder({
     required String id,
@@ -60,11 +62,18 @@ const _staffCol = 'staff_details';
 const _staffControlCol = 'staff_order_controller';
 const _invoiceCol = 'invoice';
 const _invoicedScrapCol = 'invoiced_scrap';
-const _myCollectionCol = 'my_collection';
-const _dailyTotalCol = 'daily_total_collection';
+
+const _myScrapCollTbl = 'my_collection';
+const _dailyTotalScrapColTbl = 'daily_total_collection';
+
+const _myWastCollTbl = 'my_waste_collection';
+const _dailyTotalWasteColTbl = 'daily_total_waste_collection';
+
 const _treeooStatusControlCollection = 'treeoo_status_control';
 const _treeooStatusControlDoc = 'ADMIN';
 const _scrapItemCollection = 'scrap_items';
+
+typedef DocRef = DocumentReference<Map<String, dynamic>>;
 
 class OrderRemoteDataSrcImpl extends OrderRemoteDataSrc {
   OrderRemoteDataSrcImpl({
@@ -91,55 +100,26 @@ class OrderRemoteDataSrcImpl extends OrderRemoteDataSrc {
 
   @override
   Future<Iterable<ScrapOrderModel>> searchAllOrders(int page) {
-    // TODO: implement searchAllOrders
     throw UnimplementedError();
   }
-
-  // @override
-  // Future<Iterable<ScrapOrderModel>> getAllPendingAssignedOrders() async {
-  //   //.where('status', whereIn: ['PROCESSING','PENDING'])
-  //   try {
-  //     debugPrint(' =======>> ${_auth.currentUser!.staffId}  ====== ');
-  //     final result = await _fs
-  //         .collection(_invoiceCol)
-  //         .where('assigned_staff_id', isEqualTo: _auth.currentUser!.staffId)
-  //         .where('status', isEqualTo: 'PROCESSING')
-  //         .get()
-  //         .then(
-  //           (querySnap) => querySnap.docs.map(
-  //             ScrapOrderModel.fromQueryMap,
-  //           ),
-  //         );
-  //     debugPrint('$result ');
-  //     debugPrint('==== [ORDERS FETCHED FROM SERVER] ==== ');
-  //     return result;
-  //   } on FirebaseException catch (e) {
-  //     debugPrint('==== assignedPendingOrders(): $e ==== ');
-  //     throw ServerException(
-  //       message: e.message ?? 'Error Occurred',
-  //       statusCode: e.code,
-  //     );
-  //   } catch (e) {
-  //     throw ServerException(
-  //       message: e.toString(),
-  //       statusCode: '500',
-  //     );
-  //   }
-  // }
 
   @override
   Stream<Iterable<ScrapOrderModel>> getAllPendingAssignedOrders(
     String? searchText,
   ) {
+    final date = DateTime.now().add(const Duration(days: 2));
     var query = _fs
         .collection(_invoiceCol)
         .where('assigned_staff_id', isEqualTo: _auth.currentUser!.staffId)
-        // .where('status', isEqualTo: 'PROCESSING');
-        .where('status', whereIn: [
-      OrderStatusConst.PROCESSING,
-      OrderStatusConst.RESCHEDULED,
-      OrderStatusConst.ONWAY,
-    ],);
+        .where('pickup_date', isLessThan: date)
+        .where(
+      'status',
+      whereIn: [
+        OrderStatusConst.PROCESSING,
+        OrderStatusConst.RESCHEDULED,
+        OrderStatusConst.ONWAY,
+      ],
+    );
     if (searchText != null && searchText.trim().isNotEmpty) {
       query = query.where(
         'order_id',
@@ -150,16 +130,6 @@ class OrderRemoteDataSrcImpl extends OrderRemoteDataSrc {
           (querySnapshote) =>
               querySnapshote.docs.map(ScrapOrderModel.fromQueryMap),
         );
-    // return _fs
-    //     .collection(_invoiceCol)
-    //     .where('assigned_staff_id', isEqualTo: _auth.currentUser!.staffId)
-    //     .where('status', isEqualTo: 'PROCESSING')
-    //     .where('order_id', isGreaterThanOrEqualTo: 'TR3')
-    //     .snapshots()
-    //     .map(
-    //       (querySnapshote) =>
-    //           querySnapshote.docs.map(ScrapOrderModel.fromQueryMap),
-    //     );
   }
 
   @override
@@ -194,15 +164,15 @@ class OrderRemoteDataSrcImpl extends OrderRemoteDataSrc {
   Future<int?> getOrderUpdatedDate() async {
     try {
       final path = '$_staffCol/${_auth.currentUser!.uid}/$_staffControlCol';
-      debugPrint('*****************************');
-      debugPrint(' ======= $path ======= ');
-      debugPrint('*****************************');
+      // debugPrint('*****************************');
+      // debugPrint(' ======= $path ======= ');
+      // debugPrint('*****************************');
       final date =
           await _fs.collection(path).doc(_orderUpdated).get().then((docSnap) {
         debugPrint(docSnap.data().toString());
         return (docSnap.data()!['date'] as Timestamp).toDate();
       });
-      debugPrint('ooooooooooooooo $date');
+      // debugPrint('ooooooooooooooo $date');
       return date.millisecondsSinceEpoch;
     } catch (e) {
       debugPrint(' ==== orderUpdatedDate(): $e ==== ');
@@ -216,11 +186,8 @@ class OrderRemoteDataSrcImpl extends OrderRemoteDataSrc {
   }) async {
     final today = DateTime.now().dateOnly.millisecondsSinceEpoch;
     try {
-      final path = '$_staffCol/${_auth.currentUser!.uid}/$_myCollectionCol';
-      debugPrint('-------> path: $path');
+      final (myColRef, dailyColRef) = findCollRef(today, order.type);
 
-      final myCollectionRef = _fs.collection(path).doc('$today');
-      final dailyTotalCollRef = _fs.collection(_dailyTotalCol).doc('$today');
       final invoiceRef = _fs.collection(_invoiceCol).doc(order.id);
       final invoicedScrapRef = _fs
           .collection(_invoicedScrapCol)
@@ -230,11 +197,11 @@ class OrderRemoteDataSrcImpl extends OrderRemoteDataSrc {
       CollectionModel? dailyTotalCollToUpdate;
       await _fs.runTransaction((transaction) async {
         final myCollDoc = await transaction
-            .get(myCollectionRef)
+            .get(myColRef)
             .then((d) => (id: d.id, data: d.data()));
 
         final dailyTotalCollDoc = await transaction
-            .get(dailyTotalCollRef)
+            .get(dailyColRef)
             .then((d) => (id: d.id, data: d.data()));
 
         myCollToUpdate = _findCollectionModel(myCollDoc, order, today);
@@ -244,7 +211,7 @@ class OrderRemoteDataSrcImpl extends OrderRemoteDataSrc {
           today,
         );
 
-        debugPrint('myCollToUpdate: FIRST: $myCollToUpdate');
+        // debugPrint('myCollToUpdate: FIRST: $myCollToUpdate');
         final invoiceToUpdate = {
           'address': order.address,
           'status': 'COMPLETED',
@@ -275,18 +242,9 @@ class OrderRemoteDataSrcImpl extends OrderRemoteDataSrc {
 
         transaction
           ..update(invoiceRef, invoiceToUpdate)
-          ..set(myCollectionRef, myColl)
-          ..set(dailyTotalCollRef, dailyTotalColl)
+          ..set(myColRef, myColl)
+          ..set(dailyColRef, dailyTotalColl)
           ..set(invoicedScrapRef, invoicedScrapToUpdate);
-
-        // print('===========invoiceToUpdate=========');
-        // print(invoiceToUpdate);
-        // print('===========myColl=========');
-        // print(myColl);
-        // print('===========dailyTotalColl=========');
-        // print(dailyTotalColl);
-        // print('===========invoicedScrapToUpdate=========');
-        // print(invoicedScrapToUpdate);
       }).then((value) => debugPrint('ORDER UPDATED SUCCESSFULLY $value'));
       return myCollToUpdate!;
     } on FirebaseException catch (e, s) {
@@ -307,31 +265,24 @@ class OrderRemoteDataSrcImpl extends OrderRemoteDataSrc {
   }
 
   @override
-  Future<Iterable<CollectionModel>> getLast7daysMyCollection() async {
+  StreamCollections getLast7daysMyCollection(ScrapType type) {
+    var path = '';
     try {
-      final path = '$_staffCol/${_auth.currentUser!.uid}/$_myCollectionCol';
-      final collections = await _fs
-          .collection(path)
-          .orderBy(FieldPath.documentId)
-          .limitToLast(7)
-          .get()
-          .then(
-            (querySnap) => querySnap.docs.map(CollectionModel.fromQueryMap),
-          );
-      debugPrint('==== [MY COLLECTIONS FROM SERVER] ==== ');
-      return collections;
-    } on FirebaseException catch (e) {
-      debugPrint(' ==== getLast7daysMyCollection(): $e ==== ');
-      throw ServerException(
-        message: e.message ?? 'Unable to get data',
-        statusCode: e.code,
-      );
+      final tbl = type == ScrapType.scrap ? _myScrapCollTbl : _myWastCollTbl;
+      path = '$_staffCol/${_auth.currentUser!.uid}/$tbl';
     } catch (e) {
-      throw ServerException(
-        message: e.toString(),
-        statusCode: '500',
-      );
+      debugPrint(e.toString());
     }
+    return _fs
+        .collection(path)
+        .orderBy(FieldPath.documentId)
+        .limitToLast(7)
+        .snapshots()
+        .map(
+          (snap) => snap.docs.map(
+            (qMap) => CollectionModel.fromQueryMap(qMap, type),
+          ),
+        );
   }
 
   CollectionModel _findCollectionModel(
@@ -341,6 +292,8 @@ class OrderRemoteDataSrcImpl extends OrderRemoteDataSrc {
   ) {
     if (doc.data != null) {
       doc.data!['id'] = doc.id;
+      print('********** ************ ************* ');
+      doc.data!['type'] = order.type.toText;
       final myColl = CollectionModel.fromMap(doc.data!);
       return _CollectionMethod.updateCollection(
         coll: myColl,
@@ -504,6 +457,20 @@ class OrderRemoteDataSrcImpl extends OrderRemoteDataSrc {
       );
     }
   }
+
+  (DocRef myColRef, DocRef dailyColRef) findCollRef(int today, ScrapType type) {
+    if (type == ScrapType.scrap) {
+      final path = '$_staffCol/${_auth.currentUser!.uid}/$_myScrapCollTbl';
+      final myColRef = _fs.collection(path).doc('$today');
+      final dailyColRef = _fs.collection(_dailyTotalScrapColTbl).doc('$today');
+      return (myColRef, dailyColRef);
+    } else {
+      final path = '$_staffCol/${_auth.currentUser!.uid}/$_myWastCollTbl';
+      final myColRef = _fs.collection(path).doc('$today');
+      final dailyColRef = _fs.collection(_dailyTotalWasteColTbl).doc('$today');
+      return (myColRef, dailyColRef);
+    }
+  }
 }
 
 extension on DateTime {
@@ -565,6 +532,7 @@ class _CollectionMethod {
           order.invoicedScraps!.scraps.fold(0, (prev, sp) => sp.qty + prev),
       totalRoundOff: order.roundOffAmt,
       totalServiceCharge: order.serviceCharge,
+      type: order.type,
       items: order.invoicedScraps!.scraps
           .map(
             (sp) => CollectedItem(

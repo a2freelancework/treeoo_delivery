@@ -8,6 +8,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:page_animation_transition/animations/fade_animation_transition.dart';
 import 'package:page_animation_transition/page_animation_transition.dart';
+import 'package:treeo_delivery/core/app_enums/scrap_type.dart';
+import 'package:treeo_delivery/core/extensions/context_ext.dart';
 import 'package:treeo_delivery/core/extensions/date_ext.dart';
 import 'package:treeo_delivery/data/orders/model/scrap_order_model.dart';
 import 'package:treeo_delivery/domain/orders/entity/scrap_order_entity.dart';
@@ -15,7 +17,7 @@ import 'package:treeo_delivery/domain/orders/usecase/get_invoiced_scrap_data.dar
 import 'package:treeo_delivery/domain/orders/usecase/order_usecases.dart';
 import 'package:treeo_delivery/presentation/screens/1_scrap_orders/confirm_order_screen.dart';
 import 'package:treeo_delivery/presentation/screens/1_scrap_orders/order_rejection_reason.dart';
-import 'package:treeo_delivery/presentation/screens/1_scrap_orders/pending_orders.dart';
+import 'package:treeo_delivery/presentation/screens/1_scrap_orders/pending_orders_screen.dart';
 import 'package:treeo_delivery/presentation/screens/1_scrap_orders/scraps_cubit/scrap_cubit.dart';
 import 'package:treeo_delivery/presentation/screens/1_scrap_orders/widgets/ordered_items.dart';
 import 'package:treeo_delivery/presentation/widget/appbarsection.dart';
@@ -66,17 +68,17 @@ class _OrderDetailsState extends State<OrderDetails> {
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
     final height = MediaQuery.of(context).size.height;
+    final title = order.type == ScrapType.scrap? 'Scrap': 'Waste';
     return Scaffold(
       body: _isLoading
           ? const Center(
               child: CircularProgressIndicator(),
             )
           : SingleChildScrollView(
-              physics: const BouncingScrollPhysics(),
               child: Column(
                 children: [
                   SizedBox(height: height * .065),
-                  const AppbarSection(heading: ' Order Details'),
+                  AppbarSection(heading: '$title Order Details'),
                   SizedBox(height: height * .03),
                   Padding(
                     padding:
@@ -204,7 +206,33 @@ class _OrderDetailsState extends State<OrderDetails> {
                         Text(
                           order.address,
                           maxLines: 4,
-                          textAlign: TextAlign.justify,
+                          // textAlign: TextAlign.justify,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w500,
+                            fontFamily: 'Gilroy',
+                            fontSize: 15,
+                            letterSpacing: .4,
+                            color: otpgrey,
+                          ),
+                        ),
+                        SizedBox(height: height * .015),
+                        const Line(),
+                        SizedBox(height: height * .015),
+                        const Text(
+                          'Note',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w500,
+                            fontFamily: 'Gilroy',
+                            fontSize: 15,
+                            letterSpacing: .4,
+                            color: blackColor,
+                          ),
+                        ),
+                        SizedBox(height: height * .01),
+                        Text(
+                          order.note,
+                          maxLines: 4,
+                          // textAlign: TextAlign.justify,
                           style: const TextStyle(
                             fontWeight: FontWeight.w500,
                             fontFamily: 'Gilroy',
@@ -228,96 +256,12 @@ class _OrderDetailsState extends State<OrderDetails> {
                           ),
                         ),
 
-                        OrderedItems(invoicedScraps: order.invoicedScraps!),
+                        OrderedItems(
+                          invoicedScraps: order.invoicedScraps!,
+                          type: order.type,
+                        ),
 
                         SizedBox(height: height * .05),
-
-                        // Container(
-                        //   width: width,
-                        //   height: height * .055,
-                        //   decoration: BoxDecoration(
-                        //     color: darkgreen,
-                        //     borderRadius: BorderRadius.circular(10),
-                        //   ),
-                        //   child: Padding(
-                        //     padding: EdgeInsets.only(
-                        //       left: width * .05,
-                        //       right: width * .05,
-                        //     ),
-                        //     child: DropdownButtonHideUnderline(
-                        //       child: DropdownButton2<String>(
-                        //         hint: const Center(
-                        //           child: Text(
-                        //             'Update Status',
-                        //             style: TextStyle(
-                        //               fontWeight: FontWeight.w600,
-                        //               fontFamily: 'Gilroy',
-                        //               fontSize: 15,
-                        //               // letterSpacing: .8,
-                        //               color: whiteColor,
-                        //             ),
-                        //           ),
-                        //         ),
-                        //         value: dropdownValue,
-                        //         // iconSize: 24,
-                        //         // elevation: 16,
-
-                        //         onChanged: (String? newValue) {
-                        //           if (newValue == 'On Progress') {
-                        //             Navigator.of(context).push(
-                        //               PageAnimationTransition(
-                        //                 page: BlocProvider(
-                        //                   create: (context) =>
-                        //                       ScrapCubit()..fetchScraps(),
-                        //                   child: BillViewScreen(order: order),
-                        //                 ),
-                        //                 pageAnimationType:
-                        //                     FadeAnimationTransition(),
-                        //               ),
-                        //             );
-                        //           } else {
-                        //             setState(() {
-                        //               dropdownValue = newValue;
-                        //             });
-                        //           }
-                        //         },
-                        //         items: prroflist
-                        //             .map<DropdownMenuItem<String>>((value) {
-                        //           return DropdownMenuItem<String>(
-                        //             value: value,
-                        //             child: Text(
-                        //               value,
-                        //               style: const TextStyle(
-                        //                 fontWeight: FontWeight.w600,
-                        //                 fontFamily: 'Gilroy',
-                        //                 fontSize: 15,
-                        //                 // letterSpacing: .8,
-                        //                 color: blackColor,
-                        //               ),
-                        //             ),
-                        //           );
-                        //         }).toList(),
-                        //         dropdownStyleData: DropdownStyleData(
-                        //           maxHeight: height * .3,
-                        //           width: width * .8,
-                        //           decoration: BoxDecoration(
-                        //             borderRadius: BorderRadius.circular(14),
-                        //             color: peahcream,
-                        //           ),
-                        //           elevation: 16,
-                        //           offset: const Offset(-20, 0),
-                        //           scrollbarTheme: ScrollbarThemeData(
-                        //             radius: const Radius.circular(40),
-                        //             thickness:
-                        //                 MaterialStateProperty.all<double>(6),
-                        //             thumbVisibility:
-                        //                 MaterialStateProperty.all<bool>(true),
-                        //           ),
-                        //         ),
-                        //       ),
-                        //     ),
-                        //   ),
-                        // ),
 
                         Container(
                           width: width,
@@ -470,6 +414,7 @@ class _OrderDetailsState extends State<OrderDetails> {
                               ),
                           ],
                         ),
+                        SizedBox(height: height * .03),
                         // Row(
                         //   mainAxisAlignment: MainAxisAlignment.center,
                         //   children: [
@@ -514,7 +459,7 @@ class _OrderDetailsState extends State<OrderDetails> {
       context,
       PageAnimationTransition(
         page: BlocProvider(
-          create: (context) => ScrapCubit()..fetchScraps(),
+          create: (context) => ScrapCubit()..fetchScraps(order.type),
           child: ConfirmOrderScreen(order: order),
         ),
         pageAnimationType: FadeAnimationTransition(),
@@ -542,18 +487,15 @@ class _OrderDetailsState extends State<OrderDetails> {
     required bool isCancelOrder,
     OrderStatus? newValue,
   }) async {
-    await Navigator.push(
-      context,
-      MaterialPageRoute<void>(
-        builder: (context) => OrderRejectionReason(
-          isCancelOrder: isCancelOrder,
-          onReasonSelect: (reson) {
-            orderRejectReason = reson;
-            setState(() {
-              _orderStatus = newValue;
-            });
-          },
-        ),
+    await context.push(
+      OrderRejectionReason(
+        isCancelOrder: isCancelOrder,
+        onReasonSelect: (reson) {
+          orderRejectReason = reson;
+          setState(() {
+            _orderStatus = newValue;
+          });
+        },
       ),
     );
   }
@@ -579,13 +521,7 @@ class _OrderDetailsState extends State<OrderDetails> {
         .then((result) {
       result.fold(
         (l) => null,
-        (_) => Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute<void>(
-            builder: (context) => const PendingOrderScreen(),
-          ),
-          (route) => false,
-        ),
+        (_) => context.pushAndRemoveUntil(const PendingOrderScreen()),
       );
     });
   }

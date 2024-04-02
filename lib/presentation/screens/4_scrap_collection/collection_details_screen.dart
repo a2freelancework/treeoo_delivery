@@ -1,6 +1,7 @@
 // ignore_for_file: lines_longer_than_80_chars
 
 import 'package:flutter/material.dart';
+import 'package:treeo_delivery/core/app_enums/scrap_type.dart';
 import 'package:treeo_delivery/core/extensions/date_ext.dart';
 import 'package:treeo_delivery/core/services/user_auth_service.dart';
 import 'package:treeo_delivery/domain/orders/entity/my_collection.dart';
@@ -12,7 +13,8 @@ class CollectionDetailsScreen extends StatefulWidget {
   final MyCollection collection;
 
   @override
-  State<CollectionDetailsScreen> createState() => _CollectionDetailsScreenState();
+  State<CollectionDetailsScreen> createState() =>
+      _CollectionDetailsScreenState();
 }
 
 class _CollectionDetailsScreenState extends State<CollectionDetailsScreen> {
@@ -21,6 +23,7 @@ class _CollectionDetailsScreenState extends State<CollectionDetailsScreen> {
     final width = MediaQuery.of(context).size.width;
     final height = MediaQuery.of(context).size.height;
     final vehicle = UserAuth.I.currentUser!.vehicle!;
+    final title = widget.collection.type == ScrapType.scrap ? 'Scrap': 'Waste';
     return Scaffold(
       body: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
@@ -29,8 +32,8 @@ class _CollectionDetailsScreenState extends State<CollectionDetailsScreen> {
             SizedBox(
               height: height * .065,
             ),
-            const AppbarSection(
-              heading: 'Collection Details',
+            AppbarSection(
+              heading: 'Collected $title Details',
             ),
             SizedBox(
               height: height * .015,
@@ -53,7 +56,7 @@ class _CollectionDetailsScreenState extends State<CollectionDetailsScreen> {
                         ),
                       ),
                       Text(
-                        vehicle.number,//'KL 16 A 8765',
+                        vehicle.number, //'KL 16 A 8765',
                         style: const TextStyle(
                           fontWeight: FontWeight.w500,
                           fontFamily: 'Gilroy',
@@ -81,7 +84,7 @@ class _CollectionDetailsScreenState extends State<CollectionDetailsScreen> {
                         ),
                       ),
                       Text(
-                        vehicle.name,//'MARUTHI',
+                        vehicle.name, //'MARUTHI',
                         style: const TextStyle(
                           fontWeight: FontWeight.w500,
                           fontFamily: 'Gilroy',
@@ -109,7 +112,7 @@ class _CollectionDetailsScreenState extends State<CollectionDetailsScreen> {
                         ),
                       ),
                       Text(
-                        widget.collection.date.toDate,//'12-nov-2022',
+                        widget.collection.date.toDate, //'12-nov-2022',
                         style: const TextStyle(
                           fontWeight: FontWeight.w500,
                           fontFamily: 'Gilroy',
@@ -177,7 +180,9 @@ class _CollectionDetailsScreenState extends State<CollectionDetailsScreen> {
                           height: height * .05,
                           width: width,
                           decoration: BoxDecoration(
-                            color: peahcream,
+                            color: widget.collection.type == ScrapType.scrap
+                                ? Pallete.scrapGreen
+                                : Pallete.wasteOrange,
                             borderRadius: BorderRadius.circular(5),
                           ),
                           child: Row(
@@ -187,7 +192,7 @@ class _CollectionDetailsScreenState extends State<CollectionDetailsScreen> {
                                 width: width * .02,
                               ),
                               Text(
-                                item.itemName,//'Cartoon Box',
+                                item.itemName, //'Cartoon Box',
                                 style: const TextStyle(
                                   fontWeight: FontWeight.w600,
                                   fontFamily: 'Gilroy',
@@ -204,7 +209,7 @@ class _CollectionDetailsScreenState extends State<CollectionDetailsScreen> {
                                   child: TextField(
                                     decoration: InputDecoration(
                                       border: InputBorder.none,
-                                      hintText: item.qty.toString(),//'1',
+                                      hintText: item.qty.toString(), //'1',
                                     ),
                                   ),
                                 ),
@@ -219,7 +224,7 @@ class _CollectionDetailsScreenState extends State<CollectionDetailsScreen> {
                                   child: TextField(
                                     decoration: InputDecoration(
                                       border: InputBorder.none,
-                                      hintText: item.amount.toString(),//'100',
+                                      hintText: item.amount.toString(), //'100',
                                     ),
                                   ),
                                 ),
@@ -251,7 +256,7 @@ class _CollectionDetailsScreenState extends State<CollectionDetailsScreen> {
                         ),
                       ),
                       Text(
-                        widget.collection.totalQty.toString(),//'200',
+                        widget.collection.totalQty.toString(), //'200',
                         style: const TextStyle(
                           fontWeight: FontWeight.w600,
                           fontFamily: 'Gilroy',
@@ -279,7 +284,7 @@ class _CollectionDetailsScreenState extends State<CollectionDetailsScreen> {
                         ),
                       ),
                       Text(
-                        widget.collection.totalPaidAmt.toString(),//'₹ 25000',
+                        widget.collection.totalPaidAmt.toString(), //'₹ 25000',
                         style: const TextStyle(
                           fontWeight: FontWeight.w600,
                           fontFamily: 'Gilroy',

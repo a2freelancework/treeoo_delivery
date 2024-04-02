@@ -1,4 +1,5 @@
 import 'package:dartz/dartz.dart';
+import 'package:treeo_delivery/core/app_enums/scrap_type.dart';
 import 'package:treeo_delivery/core/errors/failures.dart';
 import 'package:treeo_delivery/core/utils/type_def.dart';
 import 'package:treeo_delivery/data/orders/model/invoiced_scrap.dart';
@@ -14,7 +15,7 @@ abstract class ScrapOrderRepo {
 
   Stream<Iterable<ScrapOrder>> getAllPendingAssignedOrders(String? searchText);
 
-  FutureMyCollections getMyCollection();
+  StreamCollections getCollection(ScrapType type);
 
   Future<Either<Failure, InvoicedScrap>> getInvoicedScrapData(String id);
 

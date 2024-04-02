@@ -10,7 +10,7 @@ import 'package:treeo_delivery/domain/orders/entity/scrap_order_entity.dart';
 
 typedef FutureScrapOrders = Future<Either<Failure, Iterable<ScrapOrder>>>;
 
-typedef FutureMyCollections = Future<Either<Failure, Iterable<MyCollection>>>;
+typedef StreamCollections = Stream<Iterable<MyCollection>>;
 
 typedef FutureVoid = Future<Either<Failure, void>>;
 

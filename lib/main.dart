@@ -19,7 +19,6 @@ import 'package:treeo_delivery/presentation/widget/reusable_colors.dart';
 
 ///   dart fix --apply --code=unused_import
 
-
 // UserAuth.I.currentUser
 
 Future<void> main() async {
@@ -122,7 +121,8 @@ class AuthSplash extends StatelessWidget {
   }
 }
 
-const iconPath = 'https://firebasestorage.googleapis.com/v0/b/treoo-database.appspot.com/o/category_icon%2Fcardbod.png?alt=media&token=473bdf59-f194-473c-a43d-ff9908123488';
+const iconPath =
+    'https://firebasestorage.googleapis.com/v0/b/treoo-database.appspot.com/o/category_icon%2Fcardbod.png?alt=media&token=473bdf59-f194-473c-a43d-ff9908123488';
 
 /*
 flutter build ipa --release

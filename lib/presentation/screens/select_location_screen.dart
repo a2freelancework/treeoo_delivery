@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:lottie/lottie.dart';
+import 'package:treeo_delivery/core/extensions/context_ext.dart';
 import 'package:treeo_delivery/core/services/user_location_helper.dart';
 import 'package:treeo_delivery/core/utils/snack_bar.dart';
 import 'package:treeo_delivery/domain/auth/usecases/save_selected_vehicle.dart';
@@ -139,12 +140,7 @@ class _SelectLocationState extends State<SelectLocation> {
                 onTap: () {
                   _cacheSelectedLocationTo(LocationList.list[_selectedindex])
                       .then(
-                    (value) => Navigator.push(
-                      context,
-                      MaterialPageRoute<void>(
-                        builder: (context) => const DeliveryDashboard(),
-                      ),
-                    ),
+                    (value) => context.push(const DeliveryDashboard()),
                   );
                 },
                 child: Confirmcontainer(

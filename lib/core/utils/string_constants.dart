@@ -13,4 +13,5 @@ class OrderStatusConst {
   static const DROPPED = 'DROPPED';
   static const ONWAY = 'ON WAY';
   static const RESCHEDULED = 'RESCHEDULED';
+  static const COMPLETED = 'COMPLETED';
 }

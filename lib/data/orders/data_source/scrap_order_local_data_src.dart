@@ -1,7 +1,10 @@
+// ignore_for_file: lines_longer_than_80_chars
+
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart' show debugPrint;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:treeo_delivery/core/app_enums/scrap_type.dart';
 import 'package:treeo_delivery/core/utils/type_def.dart';
 import 'package:treeo_delivery/data/orders/model/collection_model.dart';
 import 'package:treeo_delivery/data/orders/model/scrap_model.dart';
@@ -22,7 +25,7 @@ abstract class OrderLocalDataSrc {
   });
   Future<Iterable<ScrapOrderModel>?> fetchOrdersFromCache();
 
-  Future<Iterable<CollectionModel>?> getLast7daysMyCollection();
+  Future<Iterable<CollectionModel>?> getLast7daysMyCollection(ScrapType type);
 
   Future<void> saveMyCollectionLocally({
     required CollectionSavingType type,
@@ -39,7 +42,8 @@ abstract class OrderLocalDataSrc {
 
 const _orderUpdated = 'ASSIGNED_ORDER_UPDATED_DATE';
 const _assignedPendingOrder = 'ASSIGNED_PENDING_ORDER';
-const _myCollection = 'LAST_7_DAYS_MY_COLLECTION';
+const _myScrapCollKey = 'LAST_7_DAYS_MY_SCRAP_COLLECTION';
+const _myWasteCollKey = 'LAST_7_DAYS_MY_WASTE_COLLECTION';
 const _scrapUpdated = 'SCRAP_LAST_UPDATED_DATE';
 const _tScrapTable = 'SCRAP_ITEMS';
 
@@ -88,9 +92,10 @@ class OrderLocalDataSrcImpl implements OrderLocalDataSrc {
   }
 
   @override
-  Future<Iterable<CollectionModel>?> getLast7daysMyCollection() async {
+  Future<Iterable<CollectionModel>?> getLast7daysMyCollection(ScrapType type) async {
     try {
-      final result = (jsonDecode(_prf.getString(_myCollection)!) as List)
+      final key = type == ScrapType.scrap? _myScrapCollKey : _myWasteCollKey;
+      final result = (jsonDecode(_prf.getString(key)!) as List)
           .map((e) => e as DataMap);
       return result.map(CollectionModel.fromMap);
     } catch (e) {
@@ -113,9 +118,9 @@ class OrderLocalDataSrcImpl implements OrderLocalDataSrc {
     var dataToSave = <CollectionModel>[];
     try {
       if (type == CollectionSavingType.addOn) {
-        final cachedColl = await getLast7daysMyCollection();
+        final cachedColl = await getLast7daysMyCollection((collection as CollectionModel).type);
         if (cachedColl == null) {
-          await _prf.remove(_myCollection);
+          await _prf.remove(_myScrapCollKey);
           debugPrint(' *  cachedColl == null CollectionSavingType.addOn * ');
           return;
         }
@@ -125,7 +130,7 @@ class OrderLocalDataSrcImpl implements OrderLocalDataSrc {
           debugPrint('$i: $gg ');
         }
         dataToSave = cachedColl.toList()
-          ..remove(collection as CollectionModel)
+          ..remove(collection)
           ..add(collection);
 
         debugPrint(' =======AFTER CollectionSavingType.addOn ======= ');
@@ -141,7 +146,7 @@ class OrderLocalDataSrcImpl implements OrderLocalDataSrc {
       }
       debugPrint(' ======= BEFORE SAVING ======= ');
       final listMap = dataToSave.map((coll) => coll.toMap()).toList();
-      await _prf.setString(_myCollection, jsonEncode(listMap));
+      await _prf.setString(_myScrapCollKey, jsonEncode(listMap));
     } catch (e, s) {
       debugPrint('$s');
       debugPrint(' ======= saveMyCollectionLocally: $e ======= ');

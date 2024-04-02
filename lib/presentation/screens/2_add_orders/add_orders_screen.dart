@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:treeo_delivery/core/app_enums/scrap_type.dart';
 import 'package:treeo_delivery/core/extensions/date_ext.dart';
 import 'package:treeo_delivery/core/utils/snack_bar.dart';
 import 'package:treeo_delivery/domain/orders/entity/scrap_order_entity.dart';
@@ -23,6 +24,7 @@ class _AddOrdersScreenState extends State<AddOrdersScreen> {
   late final TextEditingController _addrtess;
   final _key = GlobalKey<FormState>();
   DateTime? _pickupDate;
+  ScrapType _newOrderType = ScrapType.scrap;
 
   bool showCustomerOtherDetailsPage = false;
 
@@ -31,8 +33,8 @@ class _AddOrdersScreenState extends State<AddOrdersScreen> {
   @override
   void initState() {
     super.initState();
-    _ph = TextEditingController(text: '1234567890');
-    _name = TextEditingController(text: 'l');
+    _ph = TextEditingController();
+    _name = TextEditingController();
     _date = TextEditingController();
     _addrtess = TextEditingController();
   }
@@ -43,12 +45,20 @@ class _AddOrdersScreenState extends State<AddOrdersScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: BlocConsumer<AddNewOrderCubit, AddNewOrderState>(
-        listenWhen: (_, state) => state is AddNewOrderPlaced || state is AddNewOrderError,
+        listenWhen: (_, state) =>
+            state is AddNewOrderPlaced || state is AddNewOrderError,
         listener: (_, state) {
           if (state is AddNewOrderPlaced) {
+            AppSnackBar.showSnackBar(
+              context,
+              'Order added successfully. Check your pending order.',
+            );
             Navigator.pop(context);
-          }else if (state is AddNewOrderError){
-            AppSnackBar.showSnackBar(context, 'Something wnt wrong. Please try again.');
+          } else if (state is AddNewOrderError) {
+            AppSnackBar.showSnackBar(
+              context,
+              'Something went wrong. Please try again.',
+            );
           }
         },
         buildWhen: (_, state) => state is! AddNewOrderPlaced,
@@ -100,14 +110,53 @@ class _AddOrdersScreenState extends State<AddOrdersScreen> {
                         },
                       ),
                       SizedBox(height: size.height * .02),
+                      StatefulBuilder(
+                        builder: (_, stateChange) {
+                          return Row(
+                            children: [
+                              Flexible(
+                                child: RadioListTile<ScrapType>(
+                                  value: ScrapType.scrap,
+                                  title: const Text('Scrap Order'),
+                                  groupValue: _newOrderType,
+                                  onChanged: (tp) {
+                                    if (tp != null) {
+                                      stateChange(() {
+                                        _newOrderType = tp;
+                                      });
+                                    }
+                                  },
+                                ),
+                              ),
+                              Flexible(
+                                child: RadioListTile<ScrapType>(
+                                  value: ScrapType.waste,
+                                  title: const Text('Waste Order'),
+                                  groupValue: _newOrderType,
+                                  onChanged: (tp) {
+                                    if (tp != null) {
+                                      stateChange(() {
+                                        _newOrderType = tp;
+                                      });
+                                    }
+                                  },
+                                ),
+                              ),
+                            ],
+                          );
+                        },
+                      ),
+                      SizedBox(height: size.height * .02),
                       Stack(
                         children: [
                           OrderContainer(
                             name: 'Verify Customer',
                             onTap: () {
                               if (_key.currentState!.validate()) {
+                                FocusManager.instance.primaryFocus?.unfocus();
                                 context.read<AddNewOrderCubit>().verifyUser(
                                       phone: _ph.text,
+                                      type: _newOrderType,                                      
                                     );
                               }
                             },
@@ -160,9 +209,9 @@ class _AddOrdersScreenState extends State<AddOrdersScreen> {
                                     ),
                                   ),
                                   const Spacer(),
-                                  const Text(
-                                    'User already exist. Do you want to create new order under this user?',
-                                    style: TextStyle(fontSize: 16),
+                                  Text(
+                                    'User ${order.customerName} is already exist. Do you want to create new order under this user?',
+                                    style: const TextStyle(fontSize: 16),
                                     textAlign: TextAlign.center,
                                   ),
                                   const Spacer(
@@ -289,6 +338,7 @@ class _AddOrdersScreenState extends State<AddOrdersScreen> {
                                   phone: _ph.text.trim(),
                                   address: _addrtess.text.trim(),
                                   pickupDate: _pickupDate!,
+                                  type: _newOrderType,
                                 );
                           }
                         },

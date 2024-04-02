@@ -2,6 +2,7 @@
 
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:treeo_delivery/core/app_enums/scrap_type.dart';
 import 'package:treeo_delivery/core/extensions/date_ext.dart';
 import 'package:treeo_delivery/core/services/user_auth_service.dart';
 import 'package:treeo_delivery/core/utils/string_constants.dart';
@@ -17,18 +18,20 @@ class AddNewOrderCubit extends Cubit<AddNewOrderState> {
 
   Future<void> verifyUser({
     required String phone,
+    required ScrapType type,
   }) async {
     emit(const AddNewOrderLoading());
     try {
-      final user =
-          await _newOrderHelper.checkUserAlreadyExist(phone: phone,);
+      final user = await _newOrderHelper.checkUserAlreadyExist(
+        phone: phone,
+      );
       if (user != null) {
-        _createOrderForExistingUser(user);
+        _createOrderForExistingUser(user, type);
       } else {
         emit(const NewUserState());
       }
     } catch (e) {
-      print(' *** *** *** *** ** *$e');
+      // print(' *** *** *** *** ** *$e');
       emit(const AddNewOrderError());
     }
   }
@@ -38,6 +41,7 @@ class AddNewOrderCubit extends Cubit<AddNewOrderState> {
     required String phone,
     required String address,
     required DateTime pickupDate,
+    required ScrapType type,
   }) async {
     emit(const AddNewOrderLoading());
 
@@ -64,6 +68,8 @@ class AddNewOrderCubit extends Cubit<AddNewOrderState> {
         status: pickupDate.isToday
             ? OrderStatusConst.PROCESSING
             : OrderStatusConst.PENDING,
+        note: '',
+        type: type,
         assignedStaffId: UserAuth.I.currentUser!.staffId,
         createdAt: DateTime.now(),
         uid: phone,
@@ -91,7 +97,7 @@ class AddNewOrderCubit extends Cubit<AddNewOrderState> {
   }
 
   // It just create ScrapOrderModel only and it emit to UI
-  void _createOrderForExistingUser(Map<String, dynamic> user) {
+  void _createOrderForExistingUser(Map<String, dynamic> user, ScrapType type) {
     final date = DateTime.now();
     final order = ScrapOrderModel(
       id: 'UNKNOWN',
@@ -103,6 +109,8 @@ class AddNewOrderCubit extends Cubit<AddNewOrderState> {
       amtPayable: 0,
       roundOffAmt: 0,
       serviceCharge: 0,
+      note: '',
+      type: type,
       status: OrderStatusConst.PROCESSING,
       assignedStaffId: UserAuth.I.currentUser!.staffId,
       createdAt: date,

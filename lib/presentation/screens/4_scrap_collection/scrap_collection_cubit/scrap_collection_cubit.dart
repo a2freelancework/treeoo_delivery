@@ -11,16 +11,17 @@ class ScrapCollectionCubit extends Cubit<ScrapCollectionState> {
   })  : _getMyCollection = getMyCollection,
         super(const ScrapCollectionLoading());
 
+  // ignore: unused_field
   final GetMyCollection _getMyCollection;
 
-  Future<void> getMyCollection() async {
-    emit(const ScrapCollectionLoading());
+  // Future<void> getMyCollection(ScrapType type) async {
+  //   emit(const ScrapCollectionLoading());
     
-    final result = await _getMyCollection();
+  //   final result = await _getMyCollection(type);
 
-    result.fold(
-      (failure) => emit(ScrapCollectionError(failure.errorMessage)),
-      (collection) => emit(ScrapCollectionLoaded(collection)),
-    );
-  }
+  //   result.fold(
+  //     (failure) => emit(ScrapCollectionError(failure.errorMessage)),
+  //     (collection) => emit(ScrapCollectionLoaded(collection)),
+  //   );
+  // }
 }

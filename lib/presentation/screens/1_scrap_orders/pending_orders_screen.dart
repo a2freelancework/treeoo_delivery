@@ -1,8 +1,11 @@
+// ignore_for_file: lines_longer_than_80_chars
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:page_animation_transition/animations/fade_animation_transition.dart';
 import 'package:page_animation_transition/page_animation_transition.dart';
+import 'package:treeo_delivery/core/app_enums/scrap_type.dart';
 import 'package:treeo_delivery/core/extensions/date_ext.dart';
 import 'package:treeo_delivery/core/utils/snack_bar.dart';
 import 'package:treeo_delivery/domain/orders/entity/scrap_order_entity.dart';
@@ -33,56 +36,63 @@ class _PendingOrderScreenState extends State<PendingOrderScreen> {
 
   void _loadOrders([String? searchText]) {
     _subscription?.cancel(); // Cancel the previous subscription if it exists
-    _subscription =
-        OrderUsecases.I.getAllPendingAssignedOrders(searchText).listen((event) {
-      _orderStreamControl.sink.add(event);
-    });
+    if (!_orderStreamControl.isClosed) {
+      _subscription = OrderUsecases.I
+          .getAllPendingAssignedOrders(searchText)
+          .listen((event) {
+        _orderStreamControl.sink.add(event);
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height;
     return Scaffold(
-      body: SingleChildScrollView(
-        physics: const BouncingScrollPhysics(),
-        child: Column(
-          children: [
-            SizedBox(height: height * .065),
-            
-            const AppbarSection(
-              heading: 'Pending Orders',
-            ),
-            SizedBox(
-              height: height * .015,
-            ),
-            OrderContainer(
-              name: 'All Orders',
-              onTap: () {},
-            ),
-            SizedBox(height: height * .02),
-            SearchBox(
-              onEditingComplete: _loadOrders,
-            ),
-            CustomerdeatilList(
+      body: Column(
+        children: [
+          SizedBox(height: height * .065),
+          const AppbarSection(
+            heading: 'Pending Orders',
+          ),
+          SizedBox(
+            height: height * .015,
+          ),
+          OrderContainer(
+            name: 'All Orders',
+            onTap: () {},
+          ),
+          SizedBox(height: height * .02),
+          SearchBox(
+            onEditingComplete: _loadOrders,
+          ),
+          SizedBox(height: height * .02),
+          Flexible(
+            child: PendingOrderList(
               orderStream: _orderStreamControl.stream,
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
+
+  @override
+  void dispose() {
+    _orderStreamControl.close();
+    super.dispose();
+  }
 }
 
-
-class CustomerdeatilList extends StatefulWidget {
-  const CustomerdeatilList({required this.orderStream, super.key});
+class PendingOrderList extends StatefulWidget {
+  const PendingOrderList({required this.orderStream, super.key});
   final Stream<Iterable<ScrapOrder>> orderStream;
 
   @override
-  State<CustomerdeatilList> createState() => _CustomerdeatilListState();
+  State<PendingOrderList> createState() => _PendingOrderListState();
 }
 
-class _CustomerdeatilListState extends State<CustomerdeatilList> {
+class _PendingOrderListState extends State<PendingOrderList> {
   @override
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height;
@@ -94,8 +104,8 @@ class _CustomerdeatilListState extends State<CustomerdeatilList> {
           final orders = snapshot.data!;
           return ListView.builder(
             shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            padding: const EdgeInsets.all(8), // padding around the grid
+            padding: const EdgeInsets.all(8)
+                .copyWith(top: 0), // padding around the grid
             itemCount: orders.length, // total number of items
             itemBuilder: (context, index) {
               final order = orders.elementAt(index);
@@ -112,7 +122,9 @@ class _CustomerdeatilListState extends State<CustomerdeatilList> {
                   },
                   child: Container(
                     decoration: BoxDecoration(
-                      color: peahcream,
+                      color: order.type == ScrapType.scrap
+                          ? Pallete.scrapGreen
+                          : Pallete.wasteOrange,
                       borderRadius: BorderRadius.circular(10),
                     ),
                     width: width,
@@ -183,14 +195,16 @@ class _CustomerdeatilListState extends State<CustomerdeatilList> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text(
-                                order.address,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.w500,
-                                  fontFamily: 'Gilroy',
-                                  fontSize: 15,
-                                  letterSpacing: .4,
-                                  color: blackColor,
+                              Flexible(
+                                child: Text(
+                                  order.address,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.w500,
+                                    fontFamily: 'Gilroy',
+                                    fontSize: 15,
+                                    letterSpacing: .4,
+                                    color: blackColor,
+                                  ),
                                 ),
                               ),
                               const SizedBox.shrink(),

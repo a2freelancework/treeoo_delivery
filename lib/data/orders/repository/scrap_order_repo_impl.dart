@@ -4,6 +4,7 @@ import 'dart:async';
 
 import 'package:dartz/dartz.dart';
 import 'package:flutter/foundation.dart' show debugPrint;
+import 'package:treeo_delivery/core/app_enums/scrap_type.dart';
 import 'package:treeo_delivery/core/errors/exceptions.dart';
 import 'package:treeo_delivery/core/errors/failures.dart';
 import 'package:treeo_delivery/core/utils/type_def.dart';
@@ -28,42 +29,10 @@ class ScrapOrderRepoImpl implements ScrapOrderRepo {
   @override
   ScrapOrderStream getAllOrders(int page) => _remotSrc.getAllOrders(page);
 
-  // @override
-  // FutureScrapOrders getAllPendingAssignedOrders() async {
-  //   try {
-  //     final newDate = await _checkOrderUpdated();
-  //     if (newDate == null) {
-  //       // both server and cached date are equel
-  //       final cacheResult = await _localSrc.fetchOrdersFromCache();
-  //       if (cacheResult != null) {
-  //         return Right(cacheResult);
-  //       } // else means failed to fetch from cache
-  //     }
-  //     final pendingOrder = await _remotSrc.getAllPendingAssignedOrders();
-  //     await _localSrc.saveAssignedPendingOrderLocally(
-  //       orders: pendingOrder,
-  //       date: newDate,
-  //     );
-  //     return Right(pendingOrder);
-  //   } on ServerException catch (e) {
-  //     return Left(ServerFailure.fromException(e));
-  //   } on CacheException catch (e) {
-  //     return Left(
-  //       CacheFailure(
-  //         message: e.message,
-  //         statusCode: e.statusCode,
-  //       ),
-  //     );
-  //   } catch (e) {
-  //     debugPrint(' ======= allPendingAssignedOrders $e ======= ');
-  //     return Left(CacheFailure.fromException());
-  //   }
-  // }
-
   @override
   Stream<Iterable<ScrapOrder>> getAllPendingAssignedOrders(
-          String? searchText) =>
-      _remotSrc.getAllPendingAssignedOrders(searchText);
+    String? searchText,
+  ) => _remotSrc.getAllPendingAssignedOrders(searchText);
 
   @override
   FutureScrapOrders getTodaysPendingOrders() async {
@@ -118,24 +87,8 @@ class ScrapOrderRepoImpl implements ScrapOrderRepo {
   }
 
   @override
-  FutureMyCollections getMyCollection() async {
-    try {
-      final cachedCol = await _localSrc.getLast7daysMyCollection();
-      if (cachedCol != null) {
-        return Right(cachedCol);
-      }
-      final coll = await _remotSrc.getLast7daysMyCollection();
-      unawaited(
-        _localSrc.saveMyCollectionLocally(
-          type: CollectionSavingType.replaceAll,
-          collection: coll,
-        ),
-      );
-      return Right(coll);
-    } on ServerException catch (e) {
-      return Left(ServerFailure.fromException(e));
-    }
-  }
+  StreamCollections getCollection(ScrapType type) =>
+      _remotSrc.getLast7daysMyCollection(type);
 
   @override
   FutureVoid cancelOrder({
@@ -158,18 +111,15 @@ class ScrapOrderRepoImpl implements ScrapOrderRepo {
   @override
   FutureVoid completeOrder({required ScrapOrder order}) async {
     try {
-      final myCollection = await _remotSrc.completeOrder(
+      // final myCollection =
+       await _remotSrc.completeOrder(
         order: order as ScrapOrderModel,
       );
-      // await _localSrc.saveMyCollectionLocally(
-      //   type: CollectionSavingType.addOn,
-      //   collection: myCollection,
-      // );
       await Future.wait([
-        _localSrc.saveMyCollectionLocally(
-          type: CollectionSavingType.addOn,
-          collection: myCollection,
-        ),
+        // _localSrc.saveMyCollectionLocally(
+        //   type: CollectionSavingType.addOn,
+        //   collection: myCollection,
+        // ),
         _localSrc.refreshOrder(),
       ]);
       return const Right(null);
