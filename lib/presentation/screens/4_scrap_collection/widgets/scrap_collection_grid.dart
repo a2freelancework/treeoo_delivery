@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:page_animation_transition/animations/fade_animation_transition.dart';
 import 'package:page_animation_transition/page_animation_transition.dart';
 import 'package:treeo_delivery/core/app_enums/scrap_type.dart';
+import 'package:treeo_delivery/core/extensions/date_ext.dart';
 import 'package:treeo_delivery/core/services/user_auth_service.dart';
 import 'package:treeo_delivery/domain/orders/entity/my_collection.dart';
 import 'package:treeo_delivery/presentation/screens/4_scrap_collection/collection_details_screen.dart';
@@ -59,9 +60,7 @@ class ScrapCollectionGrid extends StatelessWidget {
                       padding: const EdgeInsets.all(12),
                       child: Column(
                         children: [
-                          SizedBox(
-                            height: height * .01,
-                          ),
+                          SizedBox(height: height * .01),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
@@ -87,14 +86,12 @@ class ScrapCollectionGrid extends StatelessWidget {
                               ),
                             ],
                           ),
-                          SizedBox(
-                            height: height * .01,
-                          ),
+                          SizedBox(height: height * .01),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                UserAuth.I.currentUser!.phone, //'8848990138',
+                                cln.date.toDate,//UserAuth.I.currentUser!.phone, //'8848990138',
                                 style: const TextStyle(
                                   fontWeight: FontWeight.w500,
                                   fontFamily: 'Gilroy',
@@ -115,9 +112,7 @@ class ScrapCollectionGrid extends StatelessWidget {
                               ),
                             ],
                           ),
-                          SizedBox(
-                            height: height * .01,
-                          ),
+                          SizedBox(height: height * .01),
                         ],
                       ),
                     ),

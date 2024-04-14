@@ -13,6 +13,7 @@ class ScrapOrder extends Equatable {
     required this.customerName,
     required this.phone,
     required this.pickupDate,
+    required this.completedDate,
     required this.amtPayable,
     required this.roundOffAmt,
     required this.serviceCharge,
@@ -31,6 +32,7 @@ class ScrapOrder extends Equatable {
   final String customerName;
   final String phone;
   final DateTime pickupDate;
+  final DateTime? completedDate;
   final double amtPayable;
   final double roundOffAmt;
   final double serviceCharge;

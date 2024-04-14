@@ -2,8 +2,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:treeo_delivery/core/app_enums/scrap_type.dart';
+import 'package:treeo_delivery/core/utils/calculation_helper.dart';
 import 'package:treeo_delivery/data/orders/model/scrap_order_model.dart';
-import 'package:treeo_delivery/presentation/widget/appbarsection.dart';
+// import 'package:treeo_delivery/presentation/widget/appbarsection.dart';
 import 'package:treeo_delivery/presentation/widget/reusable_colors.dart';
 import 'package:treeo_delivery/presentation/widget/style.dart';
 
@@ -18,108 +19,143 @@ class ItemListingWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final width = MediaQuery.of(context).size.width;
     final height = MediaQuery.of(context).size.height;
     final kHeight01 = SizedBox(height: height * .01);
-    return Column(
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    final tColor = order.type == ScrapType.scrap
+        ? Pallete.scrapGreen
+        : Pallete.wasteOrange;
+    return LayoutBuilder(
+      builder: (_, con) {
+        return Column(
           children: [
-            const Text(
-              'ITEM',
-              style: tStyle15W600,
-            ),
-            const Spacer(),
-            const Text(
-              'QTY',
-              style: tStyle15W600,
-            ),
-            SizedBox(
-              width: width * .17,
-            ),
-            const Text(
-              'PRICE',
-              style: tStyle15W600,
-            ),
-          ],
-        ),
-        const Line(),
-        ListView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          padding: EdgeInsets.zero, // padding around the grid
-          itemCount:
-              order.invoicedScraps?.scraps.length ?? 0, // total number of items
-          itemBuilder: (context, index) {
-            final scrap = order.invoicedScraps!.scraps[index];
-            return Padding(
-              padding: const EdgeInsets.only(top: 4, bottom: 4),
-              child: InkWell(
-                onTap: () {
-                  onTap(index);
-                },
-                child: Container(
-                  // height: height * .05,
-                  // width: width,
-                  constraints: BoxConstraints(
-                    maxWidth: width,
-                    minHeight: height * .05,
-                  ),
-                  padding: EdgeInsets.only(left: width * .02),
-                  decoration: BoxDecoration(
-                    color: order.type == ScrapType.scrap
-                        ? Pallete.scrapGreen
-                        : Pallete.wasteOrange,
-                    borderRadius: BorderRadius.circular(5),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Flexible(
-                        child: Text(
-                          scrap.scrapName, //'Cartoon Box',
-                          style: tStyle15W600,
-                        ),
-                      ),
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const SizedBox(
-                            width: 15,
-                          ),
-                          SizedBox(
-                            width: width * .13,
-                            // height: height,
-                            child: Center(
-                              child: Text(scrap.qty.toString()),
-                              // TextField(
-                              //   controller: tyController,
-                              //   decoration: const InputDecoration(
-                              //     border: InputBorder.none,
-                              //   ),
-                              // ),
-                            ),
-                          ),
-                          SizedBox(width: width * .1),
-                          SizedBox(
-                            width: width * .12,
-                            // height: height,
-                            child: Center(
-                              child: Text(scrap.price.toString()),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
+            Row(
+              children: [
+                Container(
+                  width: con.maxWidth * 0.3,
+                  height: 40,
+                  padding: const EdgeInsets.symmetric(horizontal: 5),
+                  color: darkgreen,
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'Item',
+                    style: tStyle15W600.copyWith(color: Colors.white),
                   ),
                 ),
-              ),
-            );
-          },
-        ),
-        kHeight01,
-      ],
+                Container(
+                  width: con.maxWidth * 0.2,
+                  height: 40,
+                  padding: const EdgeInsets.symmetric(horizontal: 5),
+                  color: darkgreen,
+                  alignment: Alignment.center,
+                  child: Text(
+                    'Qty',
+                    style: tStyle15W600.copyWith(color: Colors.white),
+                  ),
+                ),
+                Container(
+                  width: con.maxWidth * 0.25,
+                  height: 40,
+                  padding: const EdgeInsets.symmetric(horizontal: 5),
+                  color: darkgreen,
+                  alignment: Alignment.center,
+                  child: Text(
+                    'Price',
+                    style: tStyle15W600.copyWith(color: Colors.white),
+                  ),
+                ),
+                Container(
+                  width: con.maxWidth * 0.25,
+                  height: 40,
+                  padding: const EdgeInsets.symmetric(horizontal: 5),
+                  color: darkgreen,
+                  alignment: Alignment.center,
+                  child: Text(
+                    'Total',
+                    style: tStyle15W600.copyWith(color: Colors.white),
+                  ),
+                ),
+              ],
+            ),
+            ListView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              padding: EdgeInsets.zero, // padding around the grid
+              itemCount: order.invoicedScraps?.scraps.length ??
+                  0, // total number of items
+              itemBuilder: (context, index) {
+                final scrap = order.invoicedScraps!.scraps[index];
+                final color =
+                    Color.lerp(tColor, Colors.black, index.isEven ? 0 : 0.15)!;
+                const padding = EdgeInsets.symmetric(
+                  horizontal: 8,
+                  vertical: 5,
+                );
+                return GestureDetector(
+                  onTap: () {
+                    onTap(index);
+                  },
+                  child: ColoredBox(
+                    color: color,
+                    child: Row(
+                      children: [
+                        Container(
+                          width: con.maxWidth * 0.32,
+                          padding: padding,
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            scrap.scrapName,
+                            style: tStyle15W600.copyWith(
+                              fontWeight: FontWeight.normal,
+                            ),
+                          ),
+                        ),
+                        Container(
+                          width: con.maxWidth * 0.18,
+                          padding: padding,
+                          // color: color,
+                          alignment: Alignment.centerRight,
+                          child: Text(
+                            scrap.qty.toString(),
+                            style: tStyle15W600.copyWith(
+                              fontWeight: FontWeight.normal,
+                            ),
+                          ),
+                        ),
+                        Container(
+                          width: con.maxWidth * 0.25,
+                          padding: padding,
+                          // color: color,
+                          alignment: Alignment.centerRight,
+                          child: Text(
+                            '₹${scrap.price}',
+                            style: tStyle15W600.copyWith(
+                              fontWeight: FontWeight.normal,
+                            ),
+                          ),
+                        ),
+                        Container(
+                          width: con.maxWidth * 0.25,
+                          padding: padding,
+                          alignment: Alignment.centerRight,
+                          child: Text(
+                            '₹${CalculationHelper.stringToDouble('${scrap.price * scrap.qty}')}',
+                            style: tStyle15W600.copyWith(
+                              fontWeight: FontWeight.normal,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
+            kHeight01,
+          ],
+        );
+      },
     );
   }
+
+  
 }

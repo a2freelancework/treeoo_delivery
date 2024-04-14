@@ -115,13 +115,13 @@ class ScrapOrderRepoImpl implements ScrapOrderRepo {
        await _remotSrc.completeOrder(
         order: order as ScrapOrderModel,
       );
-      await Future.wait([
-        // _localSrc.saveMyCollectionLocally(
-        //   type: CollectionSavingType.addOn,
-        //   collection: myCollection,
-        // ),
-        _localSrc.refreshOrder(),
-      ]);
+      // await Future.wait([
+      //   _localSrc.saveMyCollectionLocally(
+      //     type: CollectionSavingType.addOn,
+      //     collection: myCollection,
+      //   ),
+      //   _localSrc.refreshOrder(),
+      // ]);
       return const Right(null);
     } on ServerException catch (e) {
       return Left(ServerFailure.fromException(e));
@@ -239,6 +239,7 @@ class ScrapOrderRepoImpl implements ScrapOrderRepo {
       );
     }
   }
+  
 }
 
 extension on DateTime {

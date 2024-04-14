@@ -23,6 +23,7 @@ class ScrapOrderModel extends ScrapOrder {
     required super.status,
     required super.createdAt,
     required super.uid,
+    super.completedDate,
     super.invoicedScraps,
   });
 
@@ -35,6 +36,7 @@ class ScrapOrderModel extends ScrapOrder {
       customerName: (map['customer_name'] as String?) ?? '',
       phone: (map['phone'] as String?) ?? '',
       pickupDate: (map['pickup_date'] as Timestamp).toDate(),
+      completedDate: map['completed_date']!= null ? (map['completed_date'] as Timestamp).toDate() : null,
       amtPayable: double.tryParse('${map['amt_payable']}') ?? 0,
       roundOffAmt: double.tryParse('${map['round_off_amt']}') ?? 0,
       serviceCharge: double.tryParse('${map['service_charge']}') ?? 0,
@@ -55,8 +57,8 @@ class ScrapOrderModel extends ScrapOrder {
       address: map['address'] as String,
       customerName: map['customer_name'] as String,
       phone: map['phone'] as String,
-      pickupDate:
-          DateTime.fromMillisecondsSinceEpoch(map['pickup_date'] as int),
+      pickupDate: DateTime.fromMillisecondsSinceEpoch(map['pickup_date'] as int),
+      completedDate: map['pickup_date'] != null ? DateTime.fromMillisecondsSinceEpoch(map['completed_date'] as int):null,
       amtPayable: map['amt_payable'] as double,
       roundOffAmt: map['round_off_amt'] as double,
       serviceCharge: map['service_charge'] as double,
@@ -88,6 +90,7 @@ class ScrapOrderModel extends ScrapOrder {
       customerName: customerName,
       phone: phone,
       pickupDate: pickupDate ?? this.pickupDate,
+      completedDate: completedDate,
       amtPayable: amtPayable ?? this.amtPayable,
       roundOffAmt: roundOffAmt ?? this.roundOffAmt,
       serviceCharge: serviceCharge ?? this.serviceCharge,
@@ -109,6 +112,7 @@ class ScrapOrderModel extends ScrapOrder {
       'phone': phone,
       'address': address,
       'pickup_date': pickupDate.millisecondsSinceEpoch,
+      'completed_date': completedDate?.millisecondsSinceEpoch,
       'amt_payable': amtPayable,
       'round_off_amt': roundOffAmt,
       'service_charge': serviceCharge,

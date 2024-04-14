@@ -2,8 +2,10 @@
 
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:treeo_delivery/core/app_enums/scrap_type.dart';
 import 'package:treeo_delivery/core/extensions/context_ext.dart';
 import 'package:treeo_delivery/core/services/user_auth_service.dart';
+import 'package:treeo_delivery/core/utils/calculation_helper.dart';
 import 'package:treeo_delivery/core/utils/snack_bar.dart';
 import 'package:treeo_delivery/data/orders/model/scrap_model.dart';
 import 'package:treeo_delivery/data/orders/model/scrap_order_model.dart';
@@ -26,8 +28,10 @@ class ConfirmOrderScreen extends StatefulWidget {
   State<ConfirmOrderScreen> createState() => _ConfirmOrderScreenState();
 }
 
+
 class _ConfirmOrderScreenState extends State<ConfirmOrderScreen> {
   late ScrapOrderModel order;
+  late final ScrapType _type;
   var _total = 0.0;
   var _amountPayable = 0.0;
   late final TextEditingController _serviceCharge;
@@ -44,7 +48,9 @@ class _ConfirmOrderScreenState extends State<ConfirmOrderScreen> {
   @override
   void initState() {
     super.initState();
+
     order = (widget.order as ScrapOrderModel).clone();
+    _type = order.type;
     _serviceCharge = TextEditingController(text: '0.0');
     _roundOff = TextEditingController(text: '0.0');
     _newItemQty = TextEditingController();
@@ -57,7 +63,6 @@ class _ConfirmOrderScreenState extends State<ConfirmOrderScreen> {
     final width = MediaQuery.of(context).size.width;
     final height = MediaQuery.of(context).size.height;
     final kHeight01 = SizedBox(height: height * .01);
-    final kHeight02 = SizedBox(height: height * .02);
     return WillPopScope(
       onWillPop: () async {
         return await showPopup() ?? false;
@@ -105,7 +110,8 @@ class _ConfirmOrderScreenState extends State<ConfirmOrderScreen> {
                   const Line(),
                   kHeight01,
                   LabeledInputField(
-                    label: 'Add Service charge: ',
+                    label:
+                        'Add Service charge (${_type == ScrapType.scrap ? kMSymbl : kPSymbl}): ',
                     controller: _serviceCharge,
                     onChanged: (v) {
                       _calculateTotal();
@@ -113,7 +119,8 @@ class _ConfirmOrderScreenState extends State<ConfirmOrderScreen> {
                   ),
                   kHeight01,
                   LabeledInputField(
-                    label: 'Add Round off: ',
+                    label:
+                        'Add Round off (${_type == ScrapType.scrap ? kPSymbl : kMSymbl}): ',
                     controller: _roundOff,
                     onChanged: (v) {
                       _calculateTotal();
@@ -131,7 +138,19 @@ class _ConfirmOrderScreenState extends State<ConfirmOrderScreen> {
                     label: 'Amount payable: ',
                     amount: _amountPayable,
                   ),
-                  kHeight02,
+                  // kHeight02,
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: Text(
+                      _type == ScrapType.scrap
+                          ? '( $_total + ${double.tryParse(_roundOff.text) ?? 0} - ${double.tryParse(_serviceCharge.text) ?? 0} )'
+                          : '( $_total + ${double.tryParse(_serviceCharge.text) ?? 0} - ${double.tryParse(_roundOff.text) ?? 0} )',
+                      style: TextStyle(
+                        color: Colors.grey.shade600,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ),
                   const Line(),
                   kHeight01,
                   LabeledInputField(
@@ -205,17 +224,17 @@ class _ConfirmOrderScreenState extends State<ConfirmOrderScreen> {
                   Flexible(
                     child: TextFormField(
                       controller: qtyController,
+                      keyboardType: TextInputType.number,
                       decoration: const InputDecoration(
                         hintText: 'Enter Qty',
                       ),
                     ),
                   ),
-                  const SizedBox(
-                    width: 10,
-                  ),
+                  const SizedBox(width: 10),
                   Flexible(
                     child: TextFormField(
                       controller: priceController,
+                      keyboardType: TextInputType.number,
                       decoration: const InputDecoration(
                         hintText: 'Enter Price',
                       ),
@@ -238,8 +257,11 @@ class _ConfirmOrderScreenState extends State<ConfirmOrderScreen> {
               child: const Text('Update'),
               onPressed: () {
                 final updated = scrap.copyWith(
-                  price: double.tryParse(priceController.text.trim()) ?? 0,
-                  qty: double.tryParse(qtyController.text.trim()) ?? 0,
+                  price: CalculationHelper.stringToDouble(priceController.text),
+                  qty: CalculationHelper.stringToDouble(
+                    qtyController.text,
+                    isQty: true,
+                  ),
                 );
                 order.invoicedScraps!.scraps[index] = updated;
                 _calculateTotal();
@@ -276,15 +298,23 @@ class _ConfirmOrderScreenState extends State<ConfirmOrderScreen> {
   }
 
   void _calculateTotal() {
-    final roundOff = double.tryParse(_roundOff.text) ?? 0;
-    final serviceCharge = double.tryParse(_serviceCharge.text) ?? 0;
+    final roundOff = CalculationHelper.stringToDouble(_roundOff.text);
+    final serviceCharge = CalculationHelper.stringToDouble(_serviceCharge.text);
 
-    final total = order.invoicedScraps!.scraps
+    final ttl = order.invoicedScraps!.scraps
         .fold<double>(0, (pre, sp) => (sp.price * sp.qty) + pre);
 
     setState(() {
-      _total = total;
-      _amountPayable = _total + roundOff - serviceCharge;
+      _total = CalculationHelper.stringToDouble('$ttl');
+      if (_type == ScrapType.scrap) {
+        _amountPayable = CalculationHelper.stringToDouble(
+          '${_total + roundOff - serviceCharge}',
+        );
+      } else {
+        _amountPayable = CalculationHelper.stringToDouble(
+          '${_total + serviceCharge - roundOff}',
+        );
+      }
     });
   }
 
@@ -294,10 +324,18 @@ class _ConfirmOrderScreenState extends State<ConfirmOrderScreen> {
         AppSnackBar.showSnackBar(context, 'Item already added');
         return;
       } else {
-        final qty = double.tryParse(_newItemQty.text.trim());
-        final price = double.tryParse(_newItemPrice.text.trim());
+        final qty = double.tryParse(
+          _newItemQty.text.trim().replaceFirst(RegExp(r'^\D*'), ''),
+        );
+        final price = double.tryParse(
+          _newItemPrice.text.trim().replaceFirst(RegExp(r'^\D*'), ''),
+        );
         if (qty != null && price != null) {
-          _newScrap = _newScrap!.copyWith(price: price, qty: qty);
+          _newScrap = _newScrap!.copyWith(
+            price: CalculationHelper.stringToDouble(_newItemPrice.text),
+            qty:
+                CalculationHelper.stringToDouble(_newItemQty.text, isQty: true),
+          );
           order.invoicedScraps!.scraps.add(_newScrap!);
           FocusManager.instance.primaryFocus?.unfocus();
           _calculateTotal();
@@ -378,7 +416,7 @@ class AddedResult extends StatelessWidget {
           style: tStyle15W600,
         ),
         Text(
-          amount.toString(),
+          '₹$amount',
           style: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,

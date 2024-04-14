@@ -1,8 +1,9 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:treeo_delivery/core/utils/string_constants.dart';
 import 'package:treeo_delivery/presentation/authentication/auth_bloc/auth_bloc.dart';
+import 'package:treeo_delivery/presentation/widget/helper_class/url_launcher_helper.dart';
 import 'package:treeo_delivery/presentation/widget/reusable_colors.dart';
 
 class AppDrawer extends StatelessWidget {
@@ -36,21 +37,14 @@ class AppDrawer extends StatelessWidget {
             leading: const Icon(Icons.document_scanner_rounded),
             title: const Text('Terms And Conditions'),
             onTap: () {
-              Navigator.pop(context);
+              UrlLaunchingHelper.link(StringConst.LINK_TERMS_AND_CONDITION);
             },
           ),
-          // ListTile(
-          //   leading: const Icon(Icons.star),
-          //   title: const Text('Rate Us'),
-          //   onTap: () {
-          //     Navigator.pop(context);
-          //   },
-          // ),
           ListTile(
             leading: const Icon(Icons.call),
             title: const Text('Call Us'),
             onTap: () {
-              Navigator.pop(context);
+              UrlLaunchingHelper.phone(StringConst.CONTACT_US_NO);
             },
           ),
           ListTile(

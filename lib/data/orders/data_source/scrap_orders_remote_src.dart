@@ -44,7 +44,7 @@ abstract class OrderRemoteDataSrc {
     DateTime? reschedule,
   });
 
-  Future<CollectionModel> completeOrder({required ScrapOrderModel order});
+  Future<void> completeOrder({required ScrapOrderModel order});
 
   Future<InvoicedScrap> getInvoicedScrapData(String id);
 
@@ -107,7 +107,7 @@ class OrderRemoteDataSrcImpl extends OrderRemoteDataSrc {
   Stream<Iterable<ScrapOrderModel>> getAllPendingAssignedOrders(
     String? searchText,
   ) {
-    final date = DateTime.now().add(const Duration(days: 2));
+    final date = DateTime.now();
     var query = _fs
         .collection(_invoiceCol)
         .where('assigned_staff_id', isEqualTo: _auth.currentUser!.staffId)
@@ -181,90 +181,6 @@ class OrderRemoteDataSrcImpl extends OrderRemoteDataSrc {
   }
 
   @override
-  Future<CollectionModel> completeOrder({
-    required ScrapOrderModel order,
-  }) async {
-    final today = DateTime.now().dateOnly.millisecondsSinceEpoch;
-    try {
-      final (myColRef, dailyColRef) = findCollRef(today, order.type);
-
-      final invoiceRef = _fs.collection(_invoiceCol).doc(order.id);
-      final invoicedScrapRef = _fs
-          .collection(_invoicedScrapCol)
-          .doc(order.invoicedScraps!.scrapRefId);
-
-      CollectionModel? myCollToUpdate;
-      CollectionModel? dailyTotalCollToUpdate;
-      await _fs.runTransaction((transaction) async {
-        final myCollDoc = await transaction
-            .get(myColRef)
-            .then((d) => (id: d.id, data: d.data()));
-
-        final dailyTotalCollDoc = await transaction
-            .get(dailyColRef)
-            .then((d) => (id: d.id, data: d.data()));
-
-        myCollToUpdate = _findCollectionModel(myCollDoc, order, today);
-        dailyTotalCollToUpdate = _findCollectionModel(
-          dailyTotalCollDoc,
-          order,
-          today,
-        );
-
-        // debugPrint('myCollToUpdate: FIRST: $myCollToUpdate');
-        final invoiceToUpdate = {
-          'address': order.address,
-          'status': 'COMPLETED',
-          'service_charge': order.serviceCharge,
-          'round_off_amt': order.roundOffAmt,
-          'amt_payable': order.amtPayable,
-        };
-        final myColl = {
-          'date': today,
-          'items': myCollToUpdate!.items.map((e) => e.toMap()).toList(),
-          'total_service_charge': myCollToUpdate!.totalServiceCharge,
-          'total_round_off': myCollToUpdate!.totalRoundOff,
-          'total_qty': myCollToUpdate!.totalQty,
-          'total_paid_amt': myCollToUpdate!.totalPaidAmt,
-        };
-        final dailyTotalColl = {
-          'date': today,
-          'items': dailyTotalCollToUpdate!.items.map((e) => e.toMap()).toList(),
-          'total_service_charge': dailyTotalCollToUpdate!.totalServiceCharge,
-          'total_round_off': dailyTotalCollToUpdate!.totalRoundOff,
-          'total_qty': dailyTotalCollToUpdate!.totalQty,
-          'total_paid_amt': dailyTotalCollToUpdate!.totalPaidAmt,
-        };
-        final invoicedScrapToUpdate = {
-          'invoiceId': order.invoicedScraps!.invoiceId,
-          'scrap_list': order.invoicedScraps!.scraps.map((e) => e.toMap()),
-        };
-
-        transaction
-          ..update(invoiceRef, invoiceToUpdate)
-          ..set(myColRef, myColl)
-          ..set(dailyColRef, dailyTotalColl)
-          ..set(invoicedScrapRef, invoicedScrapToUpdate);
-      }).then((value) => debugPrint('ORDER UPDATED SUCCESSFULLY $value'));
-      return myCollToUpdate!;
-    } on FirebaseException catch (e, s) {
-      debugPrint(' ==FirebaseException ERROR == completeOrder: $e ==');
-      debugPrint('$s');
-      throw ServerException(
-        message: e.message ?? 'Error Occurred',
-        statusCode: e.code,
-      );
-    } catch (e, s) {
-      debugPrint(' == CATCH ERROR===== completeOrder: $e ======= ');
-      debugPrint('$s');
-      throw ServerException(
-        message: e.toString(),
-        statusCode: '500',
-      );
-    }
-  }
-
-  @override
   StreamCollections getLast7daysMyCollection(ScrapType type) {
     var path = '';
     try {
@@ -275,7 +191,7 @@ class OrderRemoteDataSrcImpl extends OrderRemoteDataSrc {
     }
     return _fs
         .collection(path)
-        .orderBy(FieldPath.documentId)
+        .orderBy(FieldPath.documentId,descending: true)
         .limitToLast(7)
         .snapshots()
         .map(
@@ -283,28 +199,6 @@ class OrderRemoteDataSrcImpl extends OrderRemoteDataSrc {
             (qMap) => CollectionModel.fromQueryMap(qMap, type),
           ),
         );
-  }
-
-  CollectionModel _findCollectionModel(
-    ({Map<String, dynamic>? data, String id}) doc,
-    ScrapOrderModel order,
-    int date,
-  ) {
-    if (doc.data != null) {
-      doc.data!['id'] = doc.id;
-      print('********** ************ ************* ');
-      doc.data!['type'] = order.type.toText;
-      final myColl = CollectionModel.fromMap(doc.data!);
-      return _CollectionMethod.updateCollection(
-        coll: myColl,
-        order: order,
-      );
-    } else {
-      return _CollectionMethod.createCollection(
-        order: order,
-        id: date,
-      );
-    }
   }
 
   @override
@@ -381,7 +275,7 @@ class OrderRemoteDataSrcImpl extends OrderRemoteDataSrc {
     try {
       final dataToUpdate = {
         'pickup_date': date,
-        'status': OrderStatusConst.PENDING,
+        // 'status': OrderStatusConst.PENDING,
       };
       await _fs.collection(_invoiceCol).doc(id).update(dataToUpdate);
     } on FirebaseException catch (e) {
@@ -458,6 +352,113 @@ class OrderRemoteDataSrcImpl extends OrderRemoteDataSrc {
     }
   }
 
+  @override
+  Future<void> completeOrder({
+    required ScrapOrderModel order,
+  }) async {
+    try {
+      final now = DateTime.now();
+      final today = now.dateOnly.millisecondsSinceEpoch;
+      final (myColRef, dailyColRef) = findCollRef(today, order.type);
+      final invoiceRef = _fs.collection(_invoiceCol).doc(order.id);
+      final invoicedScrapRef = _fs
+          .collection(_invoicedScrapCol)
+          .doc(order.invoicedScraps!.scrapRefId);
+      await _fs.runTransaction((tr) async {
+        final myColl = await tr.get(myColRef).then(
+          (snap) {
+            if (snap.data() != null) {
+              return CollectionModel.fromDocMap(snap, order.type);
+            } else {
+              return null;
+            }
+          },
+        );
+        final totalColl = await tr.get(dailyColRef).then(
+          (snap) {
+            if (snap.data() != null) {
+              return CollectionModel.fromDocMap(snap, order.type);
+            } else {
+              return null;
+            }
+          },
+        );
+
+        final myCollUpdated = _createOrUpdateCollection(
+          order: order,
+          collection: myColl,
+          date: today,
+        );
+        final totalCollUpdated = _createOrUpdateCollection(
+          order: order,
+          collection: totalColl,
+          date: today,
+        );
+
+        final invoiceToUpdate = {
+          'address': order.address,
+          'status': OrderStatusConst.COMPLETED,
+          'service_charge': order.serviceCharge,
+          'round_off_amt': order.roundOffAmt,
+          'amt_payable': order.amtPayable,
+          'completed_date': now,
+        };
+        final myCollMap = {
+          'date': today,
+          'items': myCollUpdated.items.map((e) => e.toMap()).toList(),
+          'total_service_charge': myCollUpdated.totalServiceCharge,
+          'total_round_off': myCollUpdated.totalRoundOff,
+          'total_qty': myCollUpdated.totalQty,
+          'total_paid_amt': myCollUpdated.totalPaidAmt,
+        };
+        final totalCollMap = {
+          'date': today,
+          'items': totalCollUpdated.items.map((e) => e.toMap()).toList(),
+          'total_service_charge': totalCollUpdated.totalServiceCharge,
+          'total_round_off': totalCollUpdated.totalRoundOff,
+          'total_qty': totalCollUpdated.totalQty,
+          'total_paid_amt': totalCollUpdated.totalPaidAmt,
+        };
+        final invoicedScrapToUpdate = {
+          'invoiceId': order.invoicedScraps!.invoiceId,
+          'scrap_list': order.invoicedScraps!.scraps.map((e) => e.toMap()),
+        };
+
+        tr
+          ..update(invoiceRef, invoiceToUpdate)
+          ..set(myColRef, myCollMap)
+          ..set(dailyColRef, totalCollMap)
+          ..set(invoicedScrapRef, invoicedScrapToUpdate);
+      }).then((value) => debugPrint('ORDER UPDATED SUCCESSFULLY $value'));
+    } on FirebaseException catch (e, s) {
+      debugPrint(' ==FirebaseException ERROR == completeOrder: $e ==');
+      debugPrint('$s');
+      throw ServerException(
+        message: e.message ?? 'Error Occurred',
+        statusCode: e.code,
+      );
+    } catch (e, s) {
+      debugPrint(' == CATCH ERROR===== completeOrder: $e ======= ');
+      debugPrint('$s');
+      throw ServerException(
+        message: e.toString(),
+        statusCode: '500',
+      );
+    }
+  }
+
+  CollectionModel _createOrUpdateCollection({
+    required ScrapOrderModel order,
+    required int date,
+    CollectionModel? collection,
+  }) {
+    if (collection != null) {
+      return _CollectionMethod.updateCollection(coll: collection, order: order);
+    } else {
+      return CollectionModel.fromScrapOrder(order, date);
+    }
+  }
+
   (DocRef myColRef, DocRef dailyColRef) findCollRef(int today, ScrapType type) {
     if (type == ScrapType.scrap) {
       final path = '$_staffCol/${_auth.currentUser!.uid}/$_myScrapCollTbl';
@@ -471,6 +472,7 @@ class OrderRemoteDataSrcImpl extends OrderRemoteDataSrc {
       return (myColRef, dailyColRef);
     }
   }
+  
 }
 
 extension on DateTime {
@@ -485,27 +487,22 @@ class _CollectionMethod {
     final newSerCharge = order.serviceCharge + coll.totalServiceCharge;
     final newRoundOff = order.roundOffAmt + coll.totalRoundOff;
     final newTotal = order.amtPayable + coll.totalPaidAmt;
-    final newTotalQty = order.invoicedScraps!.scraps.fold<double>(
-          0,
-          (sum, sp) => sp.qty + sum,
-        ) +
-        coll.totalQty;
+    final newTtlQty =
+        order.invoicedScraps!.scraps.fold<double>(0, (p, sm) => sm.qty + p) +
+            coll.totalQty;
     final newCollList = <CollectedItem>[];
-
     for (final sp in order.invoicedScraps!.scraps) {
-      final index =
-          coll.items.indexWhere((itm) => itm.itemName == sp.scrapName);
-      if (index >= 0) {
-        var myCol = coll.items[index];
-        myCol = myCol.copyWith(
-          amount: myCol.amount + sp.price * sp.qty,
-          qty: myCol.qty + sp.qty,
+      final i = coll.items.indexWhere((itm) => itm.itemName == sp.scrapName);
+      if (i >= 0) {
+        var item = coll.items[i];
+        item = item.copyWith(
+          qty: item.qty + sp.qty,
         );
-        coll.items[index] = myCol;
+        coll.items[i] = item;
       } else {
         final newColl = CollectedItem(
           itemName: sp.scrapName,
-          amount: sp.price * sp.qty,
+          amount: sp.price,
           qty: sp.qty,
         );
         newCollList.add(newColl);
@@ -516,67 +513,7 @@ class _CollectionMethod {
       totalPaidAmt: newTotal,
       totalRoundOff: newRoundOff,
       totalServiceCharge: newSerCharge,
-      totalQty: newTotalQty,
-    );
-  }
-
-  static CollectionModel createCollection({
-    required ScrapOrderModel order,
-    required int id,
-  }) {
-    return CollectionModel(
-      id: id.toString(),
-      date: DateTime.fromMillisecondsSinceEpoch(id),
-      totalPaidAmt: order.amtPayable,
-      totalQty:
-          order.invoicedScraps!.scraps.fold(0, (prev, sp) => sp.qty + prev),
-      totalRoundOff: order.roundOffAmt,
-      totalServiceCharge: order.serviceCharge,
-      type: order.type,
-      items: order.invoicedScraps!.scraps
-          .map(
-            (sp) => CollectedItem(
-              amount: sp.price * sp.qty,
-              itemName: sp.scrapName,
-              qty: sp.qty,
-            ),
-          )
-          .toList(),
+      totalQty: newTtlQty,
     );
   }
 }
-/*
-I am using FirebaseFirestore. there is a collection users. I need to get all user whose name start with 'ab' or phone_no start with 1236
-import 'package:cloud_firestore/cloud_firestore.dart';
-
-final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-
-void getUsersWithNameOrPhone() async {
-  // Query for names starting with 'ab'
-  QuerySnapshot nameQuery = await _firestore
-      .collection('users')
-      .where('name', isGreaterThanOrEqualTo: 'ab')
-      .where('name', isLessThan: 'ac') // 'ac' comes after 'ab' in ASCII
-      .get();
-
-  // Query for phone numbers starting with '1236'
-  QuerySnapshot phoneQuery = await _firestore
-      .collection('users')
-      .where('phone_no', isGreaterThanOrEqualTo: '1236')
-      .where('phone_no', isLessThan: '1237') // Next possible number after '1236'
-      .get();
-
-  // Combine and process the results from both queries
-  // Note: This simplistic approach might include duplicates if a user matches both criteria
-  List<QueryDocumentSnapshot> combinedResults = nameQuery.docs + phoneQuery.docs;
-
-  // Eliminate potential duplicates by converting to a set and back to a list
-  List<QueryDocumentSnapshot> uniqueResults = combinedResults.toSet().toList();
-
-  // Process your results (e.g., print, display in UI)
-  uniqueResults.forEach((doc) {
-    print(doc.data());
-  });
-}
-
-*/

@@ -132,9 +132,7 @@ class _PendingOrderListState extends State<PendingOrderList> {
                       padding: const EdgeInsets.all(12),
                       child: Column(
                         children: [
-                          SizedBox(
-                            height: height * .01,
-                          ),
+                          SizedBox(height: height * .01),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [

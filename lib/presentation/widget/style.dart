@@ -7,14 +7,14 @@ import 'package:treeo_delivery/presentation/widget/reusable_colors.dart';
 const tStyle15 = TextStyle(
   fontWeight: FontWeight.w500,
   fontFamily: 'Gilroy',
-  fontSize: 15,
+  fontSize: 14,
   letterSpacing: .4,
   color: otpgrey,
 );
 const tStyle15W600 = TextStyle(
   fontWeight: FontWeight.w600,
   fontFamily: 'Gilroy',
-  fontSize: 15,
+  fontSize: 14,
   letterSpacing: .4,
   color: blackColor,
 );

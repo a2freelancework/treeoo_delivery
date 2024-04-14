@@ -1,10 +1,15 @@
 // ignore_for_file: lines_longer_than_80_chars, constant_identifier_names
 
-const EMAIL_VERIFICATION_LINK_SENT = 'A verification link has been sent to your email. Please check your email.';
+const EMAIL_VERIFICATION_LINK_SENT =
+    'A verification link has been sent to your email. Please check your email.';
 
-const PASSWORD_RESET_LINK_SENT = 'A password reset link has been sent to your email. Please check your inbox.';
+const PASSWORD_RESET_LINK_SENT =
+    'A password reset link has been sent to your email. Please check your inbox.';
 
-
+class StringConst {
+  static const CONTACT_US_NO = '7012547412';
+  static const LINK_TERMS_AND_CONDITION = 'https://scrapbee.in/terms-and-condition';
+}
 
 class OrderStatusConst {
   static const PENDING = 'PENDING';

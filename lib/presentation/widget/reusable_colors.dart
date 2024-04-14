@@ -16,6 +16,6 @@ const red = Colors.red;
 const String Appname = 'Treeoo';
 
 class Pallete {
-  static const scrapGreen = Color(0xffd4e1e3);
+  static const scrapGreen = Color(0xffeef3f3);
   static const wasteOrange = Color(0xFFFFEDD1);
 }

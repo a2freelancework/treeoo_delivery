@@ -4,9 +4,13 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:treeo_delivery/core/app_enums/scrap_type.dart';
+import 'package:treeo_delivery/core/extensions/context_ext.dart';
 import 'package:treeo_delivery/core/extensions/date_ext.dart';
+import 'package:treeo_delivery/core/utils/snack_bar.dart';
 import 'package:treeo_delivery/core/utils/string_constants.dart';
 import 'package:treeo_delivery/domain/orders/entity/scrap_order_entity.dart';
+import 'package:treeo_delivery/domain/orders/usecase/order_usecases.dart';
+import 'package:treeo_delivery/presentation/screens/3_order_history/completed_order_details_screen.dart';
 import 'package:treeo_delivery/presentation/widget/appbarsection.dart';
 import 'package:treeo_delivery/presentation/widget/helper_class/url_launcher_helper.dart';
 import 'package:treeo_delivery/presentation/widget/reusable_colors.dart';
@@ -38,12 +42,16 @@ class OrderHistoryList extends StatelessWidget {
                 padding: const EdgeInsets.all(8),
                 child: GestureDetector(
                   onTap: () {
-                    // Navigator.of(context).push(
-                    //   PageAnimationTransition(
-                    //     page: const OrderDetails(),
-                    //     pageAnimationType: FadeAnimationTransition(),
-                    //   ),
-                    // );
+                    if (order.status != OrderStatusConst.CANCELLED &&
+                        order.status != OrderStatusConst.COMPLETED) {
+                      _reschedule(
+                        context: context,
+                        id: order.id,
+                        currentPickupDate: order.pickupDate,
+                      );
+                    } else if (order.status == OrderStatusConst.COMPLETED) {
+                      context.push(CompletedOrderDetails(order: order));
+                    }
                   },
                   child: Container(
                     decoration: BoxDecoration(
@@ -296,6 +304,72 @@ class OrderHistoryList extends StatelessWidget {
     );
   }
 
+  Future<void> _reschedule({
+    required BuildContext context,
+    required String id,
+    required DateTime currentPickupDate,
+  }) async {
+    var isLoading = false;
+
+    DateTime? newDate;
+    await showDialog<void>(
+      context: context,
+      barrierDismissible: !isLoading,
+      builder: (_) => StatefulBuilder(
+        builder: (_, changeState) {
+          return AlertDialog(
+            title: const Text('Reschedule Order'),
+            content: Text(
+              newDate != null
+                  ? 'Selected Date: ${newDate!.toDate}'
+                  : 'Select reschedule date',
+            ),
+            actions: !isLoading
+                ? [
+                    ElevatedButton(
+                      onPressed: newDate != null
+                          ? () {
+                              if (currentPickupDate == newDate) {
+                                AppSnackBar.showSnackBar(
+                                  context,
+                                  'Select another date',
+                                );
+                                return;
+                              }
+                              changeState(() {
+                                isLoading = true;
+                              });
+                              _rescedule(
+                                context: context,
+                                id: id,
+                                date: newDate!,
+                              );
+                            }
+                          : null,
+                      child: const Text('Save'),
+                    ),
+                    ElevatedButton(
+                      onPressed: () async {
+                        await _showPopupdate(context: context).then((date) {
+                          if (date != null) {
+                            changeState(() {
+                              newDate = date;
+                            });
+                          }
+                        });
+                      },
+                      child: const Text('Select Date'),
+                    ),
+                  ]
+                : [
+                    const Center(child: CircularProgressIndicator()),
+                  ],
+          );
+        },
+      ),
+    );
+  }
+
   Widget contactIconButton({
     required double width,
     required String icon,
@@ -308,5 +382,38 @@ class OrderHistoryList extends StatelessWidget {
         width: width * .08,
       ),
     );
+  }
+
+  Future<DateTime?> _showPopupdate({
+    required BuildContext context,
+  }) async {
+    final now = DateTime.now();
+    final selectedDateTime = await showDatePicker(
+      context: context,
+      firstDate: now,
+      initialDate: now,
+      lastDate: now.add(const Duration(days: 30)),
+    );
+    return selectedDateTime;
+  }
+
+  void _rescedule({
+    required BuildContext context,
+    required DateTime date,
+    required String id,
+  }) {
+    OrderUsecases.I.rescheduleOrder(date: date, id: id).then((res) {
+      res.fold(
+        (f) {
+          AppSnackBar.showSnackBar(context, 'Faild to reschedule order');
+          Navigator.pop(context);
+        },
+        (r) {
+          AppSnackBar.showSnackBar(
+              context, 'Order rescheduled to ${date.toDate}');
+          Navigator.pop(context);
+        },
+      );
+    });
   }
 }
