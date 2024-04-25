@@ -7,7 +7,7 @@ const PASSWORD_RESET_LINK_SENT =
     'A password reset link has been sent to your email. Please check your inbox.';
 
 class StringConst {
-  static const CONTACT_US_NO = '7012547412';
+  static const CONTACT_US_NO = '7909228137';
   static const LINK_TERMS_AND_CONDITION = 'https://scrapbee.in/terms-and-condition';
 }
 

@@ -136,7 +136,7 @@ class _CompletedOrderDetailsState extends State<CompletedOrderDetails> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             const Text(
-                              'Date',
+                              'Date:',
                               style: _labelStyle,
                             ),
                             Text(
@@ -306,7 +306,7 @@ class _CompletedOrderDetailsState extends State<CompletedOrderDetails> {
                               style: _labelStyle,
                             ),
                             Text(
-                              '${order.invoicedScraps!.scraps.fold<double>(0, (pv, s) => pv + s.qty)}', //'200',
+                              '${CalculationHelper.stringToDouble('${order.invoicedScraps!.scraps.fold<double>(0, (pv, s) => pv + s.qty)}')}', //'200',
                               style: _valueStyle,
                             ),
                           ],
@@ -320,7 +320,7 @@ class _CompletedOrderDetailsState extends State<CompletedOrderDetails> {
                               style: _labelStyle,
                             ),
                             Text(
-                              order.serviceCharge.toString(), //'₹ 25000',
+                              '₹${order.serviceCharge}', //'₹ 25000',
                               style: _valueStyle,
                             ),
                           ],
@@ -334,7 +334,7 @@ class _CompletedOrderDetailsState extends State<CompletedOrderDetails> {
                               style: _labelStyle,
                             ),
                             Text(
-                              order.roundOffAmt.toString(), //'₹ 25000',
+                              '₹${order.roundOffAmt}', //'₹ 25000',
                               style: _valueStyle,
                             ),
                           ],
@@ -357,12 +357,12 @@ class _CompletedOrderDetailsState extends State<CompletedOrderDetails> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            const Text(
+                            Text(
                               'Amount Payable : ',
-                              style: _labelStyle,
+                              style: _labelStyle.copyWith(fontWeight: FontWeight.bold),
                             ),
                             Text(
-                              order.amtPayable.toString(), //'₹ 25000',
+                              '₹${order.amtPayable}', //'₹ 25000',
                               style: _valueStyle,
                             ),
                           ],
