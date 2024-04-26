@@ -127,4 +127,15 @@ const iconPath =
 /*
 flutter build ipa --release
 flutter build appbundle --release
+
+
+
+What is your first and last name?
+What is the name of your organizational unit?
+What is the name of your organization?
+What is the name of your City or Locality?
+What is the name of your State or Province?
+What is the two-letter country code for this unit?
+Is CN=ScrapBee, OU=treeoointernational, O=treeoo, L=trivandrum, ST=kerala, C=in correct?
+
 */

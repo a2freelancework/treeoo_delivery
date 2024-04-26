@@ -42,6 +42,44 @@
           "other_platform_oauth_client": []
         }
       }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:879737452073:android:4efb758f0220f31689ce38",
+        "android_client_info": {
+          "package_name": "in.scrapbee.scrapbeecustomer"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDLh0yIBdk6XnVHYWybRDPmUvXCGQq98Ug"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:879737452073:android:f48fb84ee840f8fc89ce38",
+        "android_client_info": {
+          "package_name": "in.scrapbee.treeo_delivery"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDLh0yIBdk6XnVHYWybRDPmUvXCGQq98Ug"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
     }
   ],
   "configuration_version": "1"

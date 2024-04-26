@@ -1,4 +1,4 @@
-package com.example.treeo_delivery
+package `in`.scrapbee.treeo_delivery
 
 import io.flutter.embedding.android.FlutterActivity
 
