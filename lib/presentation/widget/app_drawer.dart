@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:treeo_delivery/core/services/user_auth_service.dart';
 import 'package:treeo_delivery/core/utils/string_constants.dart';
-import 'package:treeo_delivery/presentation/authentication/auth_bloc/auth_bloc.dart';
 import 'package:treeo_delivery/presentation/widget/helper_class/url_launcher_helper.dart';
+import 'package:treeo_delivery/presentation/widget/logout_popup.dart';
 import 'package:treeo_delivery/presentation/widget/reusable_colors.dart';
 
 class AppDrawer extends StatelessWidget {
@@ -21,16 +21,43 @@ class AppDrawer extends StatelessWidget {
             decoration: const BoxDecoration(
               color: darkgreen,
             ),
-            child: Text(
-              Appname,
-              style: GoogleFonts.roboto(
-                textStyle: const TextStyle(
-                  color: whiteColor,
-                  letterSpacing: .5,
-                  fontSize: 25,
-                  fontWeight: FontWeight.w500,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  Appname,
+                  style: GoogleFonts.roboto(
+                    textStyle: const TextStyle(
+                      color: whiteColor,
+                      letterSpacing: .5,
+                      fontSize: 25,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
                 ),
-              ),
+                Text(
+                  UserAuth.I.currentUser?.name ?? '',
+                  style: GoogleFonts.roboto(
+                    textStyle:  TextStyle(
+                      color: Colors.grey.shade300,
+                      letterSpacing: .5,
+                      fontSize: 20,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+                Text(
+                  UserAuth.I.currentUser?.email ?? '',
+                  style: GoogleFonts.roboto(
+                    textStyle: TextStyle(
+                      color: Colors.grey.shade300,
+                      letterSpacing: .5,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
           ListTile(
@@ -51,8 +78,8 @@ class AppDrawer extends StatelessWidget {
             leading: const Icon(Icons.logout),
             title: const Text('Log Out'),
             onTap: () {
-              context.read<AuthBloc>().add(const AuthSignOutEvent());
               Navigator.pop(context);
+              ConfirmDialog.showConfirmDialog(context);
             },
           ),
         ],

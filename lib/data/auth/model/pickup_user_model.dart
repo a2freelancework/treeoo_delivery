@@ -39,7 +39,7 @@ class PickupUserModel extends PickupUser {
       : this(
           uid: map['uid'] as String,
           name: map['staff_name'] as String,
-          email: map['staff_name'] as String,
+          email: map['email'] as String,
           phone: map['staff_number'] as String,
           staffId: map['staff_id'] as String,
           status: (map['status'] as String).toStaffStatus(),

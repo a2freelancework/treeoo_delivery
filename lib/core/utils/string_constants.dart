@@ -8,7 +8,10 @@ const PASSWORD_RESET_LINK_SENT =
 
 class StringConst {
   static const CONTACT_US_NO = '7909228137';
-  static const LINK_TERMS_AND_CONDITION = 'https://scrapbee.in/terms-and-condition';
+  static const LINK_TERMS_AND_CONDITION =
+      'https://scrapbee.in/terms-and-condition';
+  static const APP_PLAYSTORE_LINK =
+      'https://play.google.com/store/apps/details?id=in.scrapbee.treeo_delivery&pli=1';
 }
 
 class OrderStatusConst {

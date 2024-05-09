@@ -13,7 +13,7 @@ const subtext = Color(0Xff9796A1);
 const otpgrey = Color(0xff757575);
 const shadowcolor = Color.fromARGB(255, 226, 225, 225);
 const red = Colors.red;
-const String Appname = 'Treeoo';
+const String Appname = 'ScrapBee';
 
 class Pallete {
   static const scrapGreen = Color(0xffeef3f3);

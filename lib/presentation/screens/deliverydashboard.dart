@@ -20,6 +20,7 @@ import 'package:treeo_delivery/presentation/screens/4_scrap_collection/scrap_col
 import 'package:treeo_delivery/presentation/widget/app_drawer.dart';
 import 'package:treeo_delivery/presentation/widget/reusable_colors.dart';
 import 'package:treeo_delivery/presentation/widget/reusablewidgets.dart';
+import 'package:treeo_delivery/version/inapp_update_helper.dart';
 
 class DeliveryDashboard extends StatefulWidget {
   const DeliveryDashboard({super.key});
@@ -35,6 +36,7 @@ class _DeliveryDashboardState extends State<DeliveryDashboard> {
   void initState() {
     super.initState();
     _user = UserAuth.I.currentUser;
+    InAppUpdateHelper.checkForUpdate();
   }
 
   @override
@@ -44,6 +46,7 @@ class _DeliveryDashboardState extends State<DeliveryDashboard> {
     final kHeight01 = SizedBox(height: height * .01);
     return Scaffold(
       backgroundColor: whiteColor,
+      key: InAppUpdateHelper.inAppUpdateKey,
       appBar: AppBar(
         backgroundColor: darkgreen,
         iconTheme: const IconThemeData(color: whiteColor),

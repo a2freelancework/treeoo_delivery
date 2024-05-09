@@ -14,6 +14,7 @@ import 'package:treeo_delivery/domain/auth/usecases/sign_in_usecase.dart';
 import 'package:treeo_delivery/domain/auth/usecases/sign_out_usecase.dart';
 import 'package:treeo_delivery/domain/auth/usecases/user_register_usecase.dart';
 import 'package:treeo_delivery/presentation/authentication/auth_bloc/auth_helper.dart';
+import 'package:treeo_delivery/version/app_version.dart';
 
 part 'auth_event.dart';
 part 'auth_state.dart';
@@ -53,6 +54,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     Emitter<AuthState> emit,
   ) async {
     final res = _getPickupUserFromCache();
+    await AppVersion.I.getVersionFromDataBase();
     await res.fold(
       (failure) async {
         final cred = Helper.getLoginCredential();
@@ -94,10 +96,12 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
     result.fold(
       (failure) => emit(AuthError(failure.message)),
-      (_) => emit(const AuthLoggedIn(
-        isVehicleSelected: false,
-        isLocationSelected: false,
-      ),),
+      (_) => emit(
+        const AuthLoggedIn(
+          isVehicleSelected: false,
+          isLocationSelected: false,
+        ),
+      ),
     );
   }
 
