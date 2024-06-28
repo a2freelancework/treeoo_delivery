@@ -12,14 +12,12 @@ class InAppUpdateHelper {
   static GlobalKey<ScaffoldState> inAppUpdateKey =
       GlobalKey(debugLabel: 'inAppUpdateKey');
   static void showSnack(String text) {
-    _hello += '$text\n';
     if (inAppUpdateKey.currentContext != null) {
       ScaffoldMessenger.of(inAppUpdateKey.currentContext!)
         ..removeCurrentSnackBar()
         ..showSnackBar(
           SnackBar(
-            content: SelectableText(_hello),
-            // duration: const Duration(hours: 1),
+            content: SelectableText(text),
           ),
         );
       // Future.delayed(const Duration(seconds: 1), () {
@@ -36,7 +34,6 @@ class InAppUpdateHelper {
     }
   }
 
-  static String _hello = '';
   static bool _forceUpdate = false;
 
   static Future<void> checkForUpdate() async {
@@ -76,9 +73,9 @@ class InAppUpdateHelper {
     return res == AppUpdateResult.success;
   }
 
-  static Future<void> showBtmS() async {
-    await _showUpdateOverlay(inAppUpdateKey.currentContext!);
-  }
+  // static Future<void> showBtmS() async {
+  //   await _showUpdateOverlay(inAppUpdateKey.currentContext!);
+  // }
 
   static Future<void> _flexibleUpdate() async {
     await InAppUpdate.startFlexibleUpdate().then((res) {

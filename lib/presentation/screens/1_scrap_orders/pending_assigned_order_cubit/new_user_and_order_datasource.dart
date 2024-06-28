@@ -27,12 +27,19 @@ class AddOrderBackend {
           isEqualTo: phone,
         )
         .get();
-    if (users.docs.isNotEmpty) {
-      final user = users.docs.first.data();
-      user['id'] = users.docs.first.id;
-      return user;
+    
+    Map<String, dynamic>? user;
+    var index = users.docs.length - 1;
+    while (index >= 0) {
+      if (users.docs[index].data()['deleted_at'] == null) {
+        user = users.docs[index].data();
+        user['id'] = users.docs[index].id;
+        index = -1;
+      } else {
+        index--;
+      }
     }
-    return null;
+    return user;
   }
 
   // creaye user and order
@@ -98,7 +105,7 @@ class AddOrderBackend {
         final usersRef = _fs.collection(_usersCollection).doc(user['phone']);
         transaction.set(usersRef, user);
       }
-      
+
       transaction
         ..set(invoiceRef, invoice)
         ..set(invoicedScrapRef, {

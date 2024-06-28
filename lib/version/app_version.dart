@@ -9,7 +9,7 @@ const _appVersionDoc = 'APP_VERSIONS';
 const _staffAppVersion = 'STAFF_APP_VERSION';
 
 // const _iOSV = '1.0.0';
-const _androidV = '3.0.1';
+const _androidV = '3.1.0';
 
 class AppVersion {
   AppVersion._();
@@ -20,7 +20,7 @@ class AppVersion {
   static final _fs = FirebaseFirestore.instance;
 
   String? _version;
-  String? get version => _version;
+  // String? get version => _version;
 
   (int, int, int) _versionToInts(String text) {
     final s = text.split('.').map(int.parse).toList();
